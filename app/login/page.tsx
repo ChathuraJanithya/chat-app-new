@@ -149,7 +149,12 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/95">
       <header className="flex h-14 items-center justify-between border-b px-4 lg:px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <MessageSquare className="h-6 w-6" />
+          <Image
+            src="/visitSriLanka.png"
+            alt="Visit Sri Lanka"
+            width={32}
+            height={32}
+          />
           <span>Visit Sri Lanka</span>
         </Link>
         <ThemeToggle />

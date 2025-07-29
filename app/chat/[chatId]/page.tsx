@@ -11,6 +11,7 @@ import { useSwipe } from "@/hooks/use-swipe";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useChat } from "@/context/chat-context";
 import { useAuth } from "@/context/auth-context";
+import { TypingAnimation } from "@/components/typing-animation";
 
 function ChatPage() {
   const { chatId } = useParams();
@@ -137,16 +138,7 @@ function ChatPage() {
   if (loading || chatLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">
-            {loading
-              ? "Loading..."
-              : chatNotFound
-              ? "Chat not found, redirecting..."
-              : "Loading chat..."}
-          </p>
-        </div>
+        <TypingAnimation />
       </div>
     );
   }
