@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { ChatMessageItem } from "@/components/chat-message"
-import { TypingAnimation } from "@/components/typing-animation"
-import { MobileChatInput } from "@/components/mobile-chat-input"
-import { ScrollToBottom } from "@/components/scroll-to-bottom"
-import { MessageLimitBanner } from "@/components/message-limit-banner"
-import { useIsMobile } from "@/hooks/use-mobile"
-import { useAnonymousChat } from "@/context/anonymous-chat-context"
-import { useAuth } from "@/context/auth-context"
-import { useRouter, useSearchParams } from "next/navigation"
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ChatMessageItem } from "@/components/chat-message";
+import { TypingAnimation } from "@/components/typing-animation";
+import { MobileChatInput } from "@/components/mobile-chat-input";
+import { ScrollToBottom } from "@/components/scroll-to-bottom";
+import { MessageLimitBanner } from "@/components/message-limit-banner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useAnonymousChat } from "@/context/anonymous-chat-context";
+import { useAuth } from "@/context/auth-context";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function AnonymousChatCanvas() {
-  const [inputValue, setInputValue] = useState("")
-  const messagesContainerRef = useRef<HTMLDivElement>(null)
-  const desktopInputRef = useRef<HTMLTextAreaElement>(null)
-  const isMobile = useIsMobile()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { user } = useAuth()
-  const [hasProcessedQuery, setHasProcessedQuery] = useState(false)
+  const [inputValue, setInputValue] = useState("");
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const desktopInputRef = useRef<HTMLTextAreaElement>(null);
+  const isMobile = useIsMobile();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
+  const [hasProcessedQuery, setHasProcessedQuery] = useState(false);
 
   const {
     anonymousChat,
@@ -33,99 +33,113 @@ export function AnonymousChatCanvas() {
     hasReachedLimit,
     startAnonymousChat,
     sendMessage,
-  } = useAnonymousChat()
+  } = useAnonymousChat();
 
   // Handle URL parameter on mount - only process once
   useEffect(() => {
-    const qParam = searchParams.get("q")
+    const qParam = searchParams.get("q");
     if (qParam && !anonymousChat && !user && !hasProcessedQuery) {
-      console.log("Processing query parameter:", qParam)
-      setHasProcessedQuery(true)
+      console.log("Processing query parameter:", qParam);
+      setHasProcessedQuery(true);
 
       // Use the startAnonymousChat function which handles the initial message properly
       startAnonymousChat(qParam)
         .then(() => {
-          console.log("Anonymous chat started with query parameter")
+          console.log("Anonymous chat started with query parameter");
         })
         .catch((error) => {
-          console.error("Error starting anonymous chat:", error)
-        })
+          console.error("Error starting anonymous chat:", error);
+        });
 
       // Clean up URL parameter
-      const url = new URL(window.location.href)
-      url.searchParams.delete("q")
-      window.history.replaceState({}, "", url.toString())
+      const url = new URL(window.location.href);
+      url.searchParams.delete("q");
+      window.history.replaceState({}, "", url.toString());
     }
-  }, [searchParams, anonymousChat, user, startAnonymousChat, hasProcessedQuery])
+  }, [
+    searchParams,
+    anonymousChat,
+    user,
+    startAnonymousChat,
+    hasProcessedQuery,
+  ]);
 
   // Redirect logged-in users to main chat (conversion will be handled by context)
   useEffect(() => {
     if (user) {
       // Small delay to allow conversion to complete
       setTimeout(() => {
-        router.push("/")
-      }, 1000)
+        router.push("/");
+      }, 1000);
     }
-  }, [user, router])
+  }, [user, router]);
 
   // Scroll to bottom when messages change or when typing starts/stops
   useEffect(() => {
-    scrollToBottom()
-  }, [anonymousChat?.messages, isTyping])
+    scrollToBottom();
+  }, [anonymousChat?.messages, isTyping]);
 
   // Auto-focus input when bot finishes typing (only if can still send messages)
   useEffect(() => {
     if (!isTyping && canSendMessage && desktopInputRef.current && !isMobile) {
       setTimeout(() => {
-        desktopInputRef.current?.focus()
-      }, 100)
+        desktopInputRef.current?.focus();
+      }, 100);
     }
-  }, [isTyping, canSendMessage, isMobile])
+  }, [isTyping, canSendMessage, isMobile]);
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTo({
         top: messagesContainerRef.current.scrollHeight,
         behavior: "smooth",
-      })
+      });
     }
-  }
+  };
 
   const suggestions = [
     {
-      title: "What is artificial intelligence?",
-      description: "Learn about AI and its applications",
+      title: "Best places to visit in Sri Lanka?",
+      description: "Explore top tourist destinations island-wide",
     },
     {
-      title: "Explain quantum computing",
-      description: "Understand quantum computing basics",
+      title: "Tell me about Sri Lankan food",
+      description: "Learn about traditional dishes and flavors",
     },
     {
-      title: "How does machine learning work?",
-      description: "Discover ML fundamentals",
+      title: "How is the weather in Sri Lanka now?",
+      description: "Get current climate info by region",
     },
     {
-      title: "What is blockchain?",
-      description: "Learn about blockchain technology",
+      title: "Is Sri Lanka safe for tourists?",
+      description: "Understand safety tips and travel advice",
     },
-  ]
+    {
+      title: "What are must-visit historical sites?",
+      description: "Discover ancient cities and cultural heritage",
+    },
+    {
+      title: "How do I get around Sri Lanka?",
+      description: "Transport options: train, bus, tuk-tuk & more",
+    },
+  ];
 
   const handleSendMessage = async (content: string) => {
-    if (!content.trim() || !canSendMessage) return
+    if (!content.trim() || !canSendMessage) return;
 
-    console.log("handleSendMessage called with:", content)
+    console.log("handleSendMessage called with:", content);
 
     // Use the unified sendMessage function
-    await sendMessage(content)
-  }
+    await sendMessage(content);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage(inputValue)
-      setInputValue("")
+      e.preventDefault();
+      handleSendMessage(inputValue);
+      setInputValue("");
     }
-  }
+  };
 
   // Show welcome screen if no chat exists
   if (!anonymousChat) {
@@ -133,8 +147,12 @@ export function AnonymousChatCanvas() {
       <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
         <div className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth">
           <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center">
-            <h2 className="text-2xl font-semibold">Welcome to Anonymous Chat</h2>
-            <p className="text-muted-foreground mt-2 mb-1">Try our AI assistant with up to {maxMessages} messages</p>
+            <h2 className="text-2xl font-semibold">
+              Welcome to Anonymous Chat
+            </h2>
+            <p className="text-muted-foreground mt-2 mb-1">
+              Try our AI assistant with up to {maxMessages} messages
+            </p>
             <p className="text-sm text-muted-foreground mb-8">
               No login required • Chat saved locally •
               <Button variant="link" className="p-0 h-auto text-sm" asChild>
@@ -152,7 +170,9 @@ export function AnonymousChatCanvas() {
                 >
                   <div>
                     <p className="font-medium">{suggestion.title}</p>
-                    <p className="text-muted-foreground text-sm">{suggestion.description}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {suggestion.description}
+                    </p>
                   </div>
                 </Button>
               ))}
@@ -160,12 +180,15 @@ export function AnonymousChatCanvas() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
-      <div ref={messagesContainerRef} className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth"
+      >
         <MessageLimitBanner />
 
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
@@ -189,7 +212,11 @@ export function AnonymousChatCanvas() {
         <MobileChatInput
           onSendMessage={handleSendMessage}
           disabled={isTyping || !canSendMessage}
-          placeholder={canSendMessage ? "Message..." : "Message limit reached - please log in"}
+          placeholder={
+            canSendMessage
+              ? "Message..."
+              : "Message limit reached - please log in"
+          }
         />
       ) : (
         <div className="p-4 bg-background/80 backdrop-blur-sm">
@@ -197,7 +224,11 @@ export function AnonymousChatCanvas() {
             <div className="relative rounded-lg shadow-sm border dark:border-gray-700 transition-colors duration-200">
               <Textarea
                 ref={desktopInputRef}
-                placeholder={canSendMessage ? "Message..." : "Message limit reached - please log in"}
+                placeholder={
+                  canSendMessage
+                    ? "Message..."
+                    : "Message limit reached - please log in"
+                }
                 className="min-h-12 resize-none pr-12 py-3 rounded-lg border-0 focus-visible:ring-1 bg-card transition-colors duration-200"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
@@ -210,8 +241,8 @@ export function AnonymousChatCanvas() {
                   size="icon"
                   className="h-9 w-9 rounded-full"
                   onClick={() => {
-                    handleSendMessage(inputValue)
-                    setInputValue("")
+                    handleSendMessage(inputValue);
+                    setInputValue("");
                   }}
                   disabled={!inputValue.trim() || isTyping || !canSendMessage}
                 >
@@ -235,8 +266,13 @@ export function AnonymousChatCanvas() {
             {hasReachedLimit && (
               <div className="text-center mt-2">
                 <p className="text-sm text-muted-foreground">
-                  Message limit reached ({messageCount}/{maxMessages}) • Your chat is saved locally •
-                  <Button variant="link" className="p-0 h-auto text-sm ml-1" asChild>
+                  Message limit reached ({messageCount}/{maxMessages}) • Your
+                  chat is saved locally •
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto text-sm ml-1"
+                    asChild
+                  >
                     <a href="/login">Log in to continue</a>
                   </Button>
                 </p>
@@ -246,5 +282,5 @@ export function AnonymousChatCanvas() {
         </div>
       )}
     </div>
-  )
+  );
 }
