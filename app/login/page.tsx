@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/context/auth-context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Image from "next/image";
 
 // Social login icons
 const GoogleIcon = () => (
@@ -168,27 +169,7 @@ export default function LoginPage() {
               </Alert>
             )}
 
-            {/* Anonymous Chat Option */}
-            {/* <div className="rounded-lg border bg-muted/50 p-4 text-center">
-              <p className="text-sm text-muted-foreground mb-3">
-                Don't want to sign in?
-              </p>
-              <Button
-                variant="outline"
-                className="w-full bg-transparent"
-                asChild
-              >
-                <Link href="/anonymous-chat">
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Try Anonymous Chat
-                </Link>
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                Up to 5 messages, no account required
-              </p>
-            </div> */}
-
-            <div className="relative">
+            <div className="relative hidden">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
               </div>
@@ -200,7 +181,7 @@ export default function LoginPage() {
             </div>
 
             {/* Social Login Buttons */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 hidden ">
               <Button
                 variant="outline"
                 onClick={handleGoogleSignIn}
@@ -210,22 +191,14 @@ export default function LoginPage() {
                 {socialLoading === "google" ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
                 ) : (
-                  <GoogleIcon />
+                  <Image
+                    src="/googleIcon.png"
+                    alt="Google"
+                    width={16}
+                    height={16}
+                  />
                 )}
                 <span className="ml-2">Google</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleFacebookSignIn}
-                disabled={socialLoading !== null || isLoading}
-                className="w-full bg-transparent"
-              >
-                {socialLoading === "facebook" ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
-                ) : (
-                  <FacebookIcon />
-                )}
-                <span className="ml-2">Facebook</span>
               </Button>
             </div>
 

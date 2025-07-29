@@ -30,7 +30,7 @@ const AnonymousChatContext = createContext<
   AnonymousChatContextProps | undefined
 >(undefined);
 
-const ANONYMOUS_CHAT_KEY = process.env.NEXT_PUBLIC_ANONYMOUS_CHAT_KEY;
+const ANONYMOUS_CHAT_KEY = process.env.NEXT_PUBLIC_ANONYMOUS_CHAT_KEY
 
 export function AnonymousChatProvider({
   children,

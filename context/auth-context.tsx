@@ -122,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const {
         data: { subscription },
+        //@ts-ignore
       } = supabase.auth.onAuthStateChange(async (event, session) => {
         try {
           const currentUserId = session?.user?.id ?? null;
@@ -310,19 +311,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    if (!isSupabaseConfigured) {
-      return;
-    }
+    if (!isSupabaseConfigured) return;
 
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        console.warn("No session found, skipping signOut.");
+        // You can still reset your state and redirect
+        setUser(null);
+        setSession(null);
+        setLoading(false);
+        lastUserId.current = null;
+        window.location.href = "/login";
+        return;
+      }
+
       const { error } = await supabase.auth.signOut();
+      console.log("Signout response:", { error });
+
       if (error) {
         console.error("Signout error:", error);
+      } else {
+        console.log("User signed out successfully");
+        setUser(null);
+        setSession(null);
+        setLoading(false);
+        lastUserId.current = null;
+        window.location.href = "/login";
       }
-      // Reset the user tracking
-      lastUserId.current = null;
-      //navigate to login page after signout
-      window.location.href = "/login";
     } catch (error) {
       console.error("Unexpected signout error:", error);
     }
