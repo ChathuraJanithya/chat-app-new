@@ -26,27 +26,12 @@ function ChatPage() {
   } = useChat();
   const { user, loading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { isOpen, setIsOpen } = useSidebarContext();
   const isMobile = useIsMobile();
   const [chatLoading, setChatLoading] = useState(true);
   const [chatNotFound, setChatNotFound] = useState(false);
   const [messageToSend, setMessageToSend] = useState<string | null>(null);
   const [messageSent, setMessageSent] = useState(false);
-
-  // Get message parameter from URL
-  useEffect(() => {
-    const message = searchParams.get("message");
-    console.log("ChatPage: message parameter from URL:", message);
-    if (message && !messageSent) {
-      console.log("Found message parameter:", message);
-      setMessageToSend(decodeURIComponent(message));
-      // Clean up URL parameter
-      const url = new URL(window.location.href);
-      url.searchParams.delete("message");
-      window.history.replaceState({}, "", url.toString());
-    }
-  }, [searchParams, messageSent]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -170,23 +155,6 @@ function ChatPage() {
     return null;
   }
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return;
-
-    try {
-      console.log("Creating new chat with message:", content);
-      const newChat = await createNewChat();
-      if (newChat) {
-        // Redirect to the new chat and pass the message to send
-        const encodedMessage = encodeURIComponent(content.trim());
-        console.log("Redirecting to new chat with message:", encodedMessage);
-        router.push(`/chat/${newChat.id}?message=${encodedMessage}`);
-      }
-    } catch (error) {
-      console.error("Error creating new chat:", error);
-    }
-  };
-
   return (
     <div
       className="flex h-screen w-full overflow-hidden bg-gradient-to-b from-background to-background/95"
@@ -196,7 +164,6 @@ function ChatPage() {
       <MobileOverlay />
       <div className="flex flex-1 flex-col">
         <ChatHeader />
-
         <ChatCanvas />
       </div>
     </div>

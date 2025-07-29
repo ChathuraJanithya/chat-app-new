@@ -85,6 +85,7 @@ export function ChatCanvas() {
       // If no current chat, create one and redirect
       if (!currentChat) {
         const newChat = createNewChat();
+        //@ts-ignore
         router.push(`/chat/${newChat.id}`);
         return;
       }
@@ -125,6 +126,17 @@ export function ChatCanvas() {
 
   return (
     <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
+      {currentChat?.messages.length === 0 && !isTyping && (
+        <div className="flex flex-col items-center justify-end mb-16 h-full text-center">
+          <h2 className="text-2xl font-semibold mb-2">
+            Start a New Conversation
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-md">
+            You don't have any chats yet. Send a message below to create your
+            first chat and start the conversation.
+          </p>
+        </div>
+      )}
       <div
         ref={messagesContainerRef}
         className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth"
@@ -133,18 +145,6 @@ export function ChatCanvas() {
           {currentChat?.messages.map((message) => (
             <ChatMessageItem key={message.id} message={message} />
           ))}
-
-          {currentChat?.messages.length === 0 && !isTyping && (
-            <div className="flex flex-col items-center justify-center   h-dvh text-center">
-              <h2 className="text-2xl font-semibold mb-2">
-                Start a New Conversation
-              </h2>
-              <p className="text-muted-foreground mb-8 max-w-md">
-                You don't have any chats yet. Send a message below to create
-                your first chat and start the conversation.
-              </p>
-            </div>
-          )}
 
           {isTyping && (
             <div className="flex w-full items-start gap-4 animate-in fade-in-0 slide-in-from-bottom-3 duration-300">
