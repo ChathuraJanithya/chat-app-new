@@ -186,7 +186,7 @@ export default function LoginPage() {
             </div>
 
             {/* Social Login Buttons */}
-            <div className="grid grid-cols-1 hidden ">
+            <div className="grid grid-cols-1  ">
               <Button
                 variant="outline"
                 onClick={handleGoogleSignIn}
