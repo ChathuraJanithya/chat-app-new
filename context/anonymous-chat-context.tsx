@@ -30,7 +30,7 @@ const AnonymousChatContext = createContext<
   AnonymousChatContextProps | undefined
 >(undefined);
 
-const ANONYMOUS_CHAT_KEY = "anonymous_chat_session";
+const ANONYMOUS_CHAT_KEY = process.env.NEXT_PUBLIC_ANONYMOUS_CHAT_KEY;
 
 export function AnonymousChatProvider({
   children,
@@ -82,7 +82,10 @@ export function AnonymousChatProvider({
           ...anonymousChat,
           savedAt: new Date().toISOString(),
         };
-        localStorage.setItem(ANONYMOUS_CHAT_KEY, JSON.stringify(chatData));
+        localStorage.setItem(
+          ANONYMOUS_CHAT_KEY as string,
+          JSON.stringify(chatData)
+        );
         console.log("Anonymous chat saved to localStorage");
       } catch (error) {
         console.error("Error saving to localStorage:", error);
@@ -92,7 +95,7 @@ export function AnonymousChatProvider({
 
   const loadFromLocalStorage = (): ChatSession | null => {
     try {
-      const saved = localStorage.getItem(ANONYMOUS_CHAT_KEY);
+      const saved = localStorage.getItem(ANONYMOUS_CHAT_KEY as string);
       if (saved) {
         const chatData = JSON.parse(saved);
         console.log("Loaded anonymous chat from localStorage:", chatData);
@@ -341,7 +344,7 @@ export function AnonymousChatProvider({
 
     // Clear from localStorage
     try {
-      localStorage.removeItem(ANONYMOUS_CHAT_KEY);
+      localStorage.removeItem(ANONYMOUS_CHAT_KEY as string);
       console.log("Anonymous chat cleared from localStorage");
     } catch (error) {
       console.error("Error clearing localStorage:", error);
