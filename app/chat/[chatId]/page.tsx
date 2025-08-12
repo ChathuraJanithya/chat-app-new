@@ -53,7 +53,7 @@ function ChatPage() {
         let targetChat = chats.find((c) => c.id === chatId);
 
         if (targetChat) {
-          console.log("Found chat in context:", targetChat.id);
+          // console.log("Found chat in context:", targetChat.id);
           setCurrentChat(targetChat);
         } else {
           // If not in context, fetch from database
@@ -153,7 +153,7 @@ function ChatPage() {
       {...handlers}
     >
       <ChatSidebar />
-      <MobileOverlay />
+      {/*  <MobileOverlay /> */}
       <div className="flex flex-1 flex-col">
         <ChatHeader />
         <ChatCanvas />

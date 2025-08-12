@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn, MessageSquare, Save } from "lucide-react";
+import { LogIn, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAnonymousChat } from "@/context/anonymous-chat-context";
@@ -14,15 +14,18 @@ export function AnonymousChatHeader() {
   return (
     <header className="flex h-14 items-center justify-between border-b px-4">
       <div className="flex items-center gap-2">
-        <Image
-          src="/visitSriLanka.png"
-          alt="Visit Sri Lanka"
-          width={32}
-          height={32}
-        />
-        <h1 className="text-lg font-medium">
-          {anonymousChat ? anonymousChat.title : "Anonymous Chat"}
-        </h1>
+        <Link
+          href="https://visitsrilanka.ai/"
+          className="flex items-center gap-2 font-semibold"
+        >
+          <Image
+            src="/visitSriLanka.png"
+            alt="Visit Sri Lanka"
+            width={32}
+            height={32}
+          />
+          <span>Visit Sri Lanka</span>
+        </Link>
         {anonymousChat && (
           <div className="flex items-center gap-2">
             <span

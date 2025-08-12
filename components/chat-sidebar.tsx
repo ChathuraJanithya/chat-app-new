@@ -249,7 +249,7 @@ export function ChatSidebar() {
             </SidebarMenu>
           )}
         </SidebarContent>
-        <SidebarFooter className="p-4 bg-sidebar-accent/50 backdrop-blur-sm transition-colors duration-200">
+        <SidebarFooter className="p-4 hidden bg-sidebar-accent/50 backdrop-blur-sm transition-colors duration-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8">

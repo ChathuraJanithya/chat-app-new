@@ -102,7 +102,7 @@ function ChatPage() {
       {...handlers}
     >
       <ChatSidebar />
-      <MobileOverlay />
+      {/*  <MobileOverlay /> */}
       <div className="flex flex-1 flex-col">
         <ChatHeader />
         <EmptyChatCanvas onSendMessage={handleSendMessage} />

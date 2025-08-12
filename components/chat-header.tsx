@@ -1,21 +1,13 @@
 "use client";
 
-import {
-  ChevronDown,
-  Lock,
-  Plus,
-  Settings,
-  LogIn,
-  LogOut,
-  User,
-} from "lucide-react";
+import { ChevronDown, Lock, Settings, LogIn, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useChat } from "@/context/chat-context";
 import { useAuth } from "@/context/auth-context";
 import Link from "next/link";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +19,6 @@ import {
 
 export function ChatHeader() {
   const isMobile = useIsMobile();
-  const { currentChat, createNewChat } = useChat();
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -38,9 +29,18 @@ export function ChatHeader() {
     <header className="flex h-14 items-center justify-between border-b px-4">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
-        <h1 className="text-lg font-medium truncate max-w-[200px]">
-          {currentChat ? currentChat.title : "AI Chat"}
-        </h1>
+        <Link
+          href="https://visitsrilanka.ai/"
+          className="flex items-center gap-2 font-semibold"
+        >
+          <Image
+            src="/visitSriLanka.png"
+            alt="Visit Sri Lanka"
+            width={32}
+            height={32}
+          />
+          <span>Visit Sri Lanka.ai</span>
+        </Link>
       </div>
       <div className="flex items-center gap-2">
         <ThemeToggle />
@@ -50,7 +50,12 @@ export function ChatHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <User className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">{user.email}</span>
+                <span className="hidden sm:inline">
+                  {" "}
+                  {user.user_metadata?.name ||
+                    user.user_metadata?.full_name ||
+                    user.email}
+                </span>
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

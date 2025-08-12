@@ -46,10 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!result.isSetup) {
         console.warn("Database setup incomplete:", result.error);
         if (!isSupabaseConfigured) {
-          console.log("Running in anonymous-only mode");
+          //console.log("Running in anonymous-only mode");
         }
       } else {
-        console.log("Database setup verified successfully");
+        //console.log("Database setup verified successfully");
       }
     } catch (error) {
       console.error("Database check failed:", error);
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Skip auth setup if Supabase is not configured
     if (!isSupabaseConfigured) {
-      console.log("Supabase not configured, skipping auth setup");
+      // console.log("Supabase not configured, skipping auth setup");
       setLoading(false);
       return;
     }
@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // Only log and process if the user actually changed
           if (currentUserId !== lastUserId.current) {
-            console.log("Auth state changed:", event, session?.user?.email);
+            //console.log("Auth state changed:", event, session?.user?.email);
             lastUserId.current = currentUserId;
 
             setSession(session);
@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      console.log("Starting signup process for:", email);
+      //console.log("Starting signup process for:", email);
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -201,7 +201,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error, data: null };
       }
 
-      console.log("Signup successful:", data);
+      //("Signup successful:", data);
       return { error: null, data };
     } catch (error) {
       console.error("Unexpected signup error:", error);
@@ -330,12 +330,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const { error } = await supabase.auth.signOut();
-      console.log("Signout response:", { error });
+      //console.log("Signout response:", { error });
 
       if (error) {
         console.error("Signout error:", error);
       } else {
-        console.log("User signed out successfully");
+        //  console.log("User signed out successfully");
         setUser(null);
         setSession(null);
         setLoading(false);

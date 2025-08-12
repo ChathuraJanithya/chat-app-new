@@ -21,7 +21,7 @@ async function fetchChats(userId: string): Promise<ChatSession[]> {
     return [];
   }
 
-  console.log("Fetching chats for user:", userId);
+  //console.log("Fetching chats for user:", userId);
 
   // First, fetch all chats for the user
   const { data: chatsData, error: chatsError } = await supabase
@@ -81,7 +81,7 @@ async function fetchChatById(
     return null;
   }
 
-  console.log("Fetching chat by ID:", chatId);
+  //console.log("Fetching chat by ID:", chatId);
 
   // First, fetch the chat
   const { data: chatData, error: chatError } = await supabase
@@ -162,7 +162,7 @@ export function useCreateChat() {
         throw new Error("User not authenticated or database not configured");
       }
 
-      console.log("Creating new chat for user:", user.id);
+      // console.log("Creating new chat for user:", user.id);
 
       const { data: chatData, error: chatError } = await supabase
         .from("chats")
@@ -405,7 +405,7 @@ export function useGenerateBotResponse() {
       chatId: string;
       userMessage: string;
     }): Promise<string> => {
-      console.log("Generating bot response for:", { chatId, userMessage });
+      //console.log("Generating bot response for:", { chatId, userMessage });
 
       const response = await chatService.sendMessage({
         chatId,

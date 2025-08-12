@@ -3,17 +3,20 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/auth-context";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useAuth } from "@/context/auth-context";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import Image from "next/image";
+
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -120,7 +123,10 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/95">
       <header className="flex h-14 items-center justify-between border-b px-4 lg:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
+        <Link
+          href="https://visitsrilanka.ai/"
+          className="flex items-center gap-2 font-semibold"
+        >
           <Image
             src="/visitSriLanka.png"
             alt="Visit Sri Lanka"
