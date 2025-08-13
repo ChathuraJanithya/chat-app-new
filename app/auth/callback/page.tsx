@@ -22,14 +22,14 @@ export default function AuthCallback() {
         }
 
         if (data.session) {
-          console.log("OAuth login successful:", data.session.user.email);
+          //("OAuth login successful:", data.session.user.email);
           router.push("/");
         } else {
-          console.log("No session found, redirecting to login");
+          // console.log("No session found, redirecting to login");
           router.push("/login");
         }
       } catch (error) {
-        console.error("Unexpected error in auth callback:", error);
+        // console.error("Unexpected error in auth callback:", error);
         router.push("/login?error=unexpected_error");
       }
     };

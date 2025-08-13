@@ -7,20 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatMessageItem } from "@/components/chat-message";
 import { TypingAnimation } from "@/components/typing-animation";
-import { MobileChatInput } from "@/components/mobile-chat-input";
 import { ScrollToBottom } from "@/components/scroll-to-bottom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useChat } from "@/context/chat-context";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 
 export function ChatCanvas() {
+  const router = useRouter();
+  const prevTypingRef = useRef(false);
+
+  const isMobile = useIsMobile();
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const desktopInputRef = useRef<HTMLTextAreaElement>(null);
-  const isMobile = useIsMobile();
-  const [hasNewMessages, setHasNewMessages] = useState(false);
-  const prevTypingRef = useRef(false);
-  const router = useRouter();
 
   const {
     currentChat,
@@ -127,15 +129,69 @@ export function ChatCanvas() {
   return (
     <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
       {currentChat?.messages.length === 0 && !isTyping && (
-        <div className="flex flex-col items-center justify-end mb-16 h-full text-center">
-          <h2 className="text-2xl font-semibold mb-2">
-            Start a New Conversation
-          </h2>
-          <p className="text-muted-foreground mb-8 max-w-md">
-            You don't have any chats yet. Send a message below to create your
-            first chat and start the conversation.
-          </p>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col items-center justify-center mb-16 px-4 md:px-0 h-full text-center"
+          >
+            <Image
+              src="/visitSriLanka.png"
+              alt="Visit Sri Lanka"
+              width={100}
+              height={100}
+            />
+            <h2 className="text-2xl mt-3 font-semibold mb-2">
+              Start a New Conversation
+            </h2>
+            <p className="text-muted-foreground mb-8  max-w-md">
+              You don't have any chats yet. Send a message below to create your
+              first chat and start the conversation.
+            </p>
+            <div className="mx-auto w-full max-w-3xl">
+              <div className="relative rounded-3xl shadow-sm border dark:border-gray-700 transition-colors duration-200">
+                <Textarea
+                  ref={desktopInputRef}
+                  placeholder="Message..."
+                  className="min-h-12 resize-none pr-12 py-3 rounded-3xl border-0 focus-visible:ring-1 bg-card transition-colors duration-200"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  rows={1}
+                  disabled={isTyping}
+                />
+                <div className="absolute bottom-1.5 right-1 flex items-center gap-2">
+                  <Button
+                    size="icon"
+                    className="h-9 w-9 rounded-full"
+                    onClick={() => {
+                      handleSendMessage(inputValue);
+                      setInputValue("");
+                    }}
+                    disabled={!inputValue.trim() || isTyping}
+                  >
+                    <span className="sr-only">Send message</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4"
+                    >
+                      <path d="M22 2L11 13" />
+                      <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                    </svg>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       )}
       <div
         ref={messagesContainerRef}
@@ -156,31 +212,46 @@ export function ChatCanvas() {
         </div>
       </div>
 
-      {/* if c */}
-
       <ScrollToBottom containerRef={messagesContainerRef} />
 
-      {isMobile ? (
+      {/*  {isMobile && (
         <MobileChatInput
           onSendMessage={handleSendMessage}
           disabled={isTyping}
           autoFocus={!isTyping}
         />
-      ) : (
+      )} */}
+
+      {/* @ts-ignore */}
+      {currentChat?.messages.length > 0 && !isTyping && (
         <div className="p-4 bg-background/80 backdrop-blur-sm">
           <div className="mx-auto max-w-3xl">
-            <div className="relative rounded-lg shadow-sm border dark:border-gray-700 transition-colors duration-200">
+            <Link
+              className=" flex items-center px-3 pb-2 gap-2 "
+              href="https://visitsrilanka.ai/"
+              target="_blank"
+            >
+              <Image
+                src="/visitSriLanka.png"
+                alt="Visit Sri Lanka"
+                width={18}
+                height={18}
+                className=" rounded-full"
+              />
+              <span className=" text-xs underline">Visit Sri Lanka.ai</span>
+            </Link>
+            <div className="relative rounded-3xl shadow-sm border dark:border-gray-700 transition-colors duration-200">
               <Textarea
                 ref={desktopInputRef}
                 placeholder="Message..."
-                className="min-h-12 resize-none pr-12 py-3 rounded-lg border-0 focus-visible:ring-1 bg-card transition-colors duration-200"
+                className="min-h-12 resize-none pr-12 py-3 rounded-3xl border-0 focus-visible:ring-1 bg-card transition-colors duration-200"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 rows={1}
                 disabled={isTyping}
               />
-              <div className="absolute bottom-1 right-1 flex items-center gap-2">
+              <div className="absolute bottom-1.5 right-1 flex items-center gap-2">
                 <Button
                   size="icon"
                   className="h-9 w-9 rounded-full"

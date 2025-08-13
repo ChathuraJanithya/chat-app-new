@@ -10,7 +10,7 @@ import { AnonymousChatCanvas } from "@/components/anonymous-chat-canvas";
 function AnonymousChatPage() {
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      console.log("Running anonymous chat without Supabase authentication");
+      //console.log("Running anonymous chat without Supabase authentication");
     }
   }, []);
 

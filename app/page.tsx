@@ -11,7 +11,6 @@ import { ChatHeader } from "@/components/chat-header";
 import { ChatCanvas } from "@/components/chat-canvas";
 import { ChatSidebar } from "@/components/chat-sidebar";
 import { DatabaseSetup } from "@/components/database-setup";
-import { MobileOverlay } from "@/components/mobile-overlay";
 import { SidebarProvider, useSidebarContext } from "@/components/ui/sidebar";
 
 import { useChat } from "@/context/chat-context";
@@ -100,7 +99,7 @@ function ChatApp() {
       {...handlers}
     >
       <ChatSidebar />
-      <MobileOverlay />
+      {/*       <MobileOverlay /> */}
       <div className="flex flex-1 flex-col">
         <ChatHeader />
         <ChatCanvas />
