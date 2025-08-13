@@ -30,16 +30,16 @@ export const metadata: Metadata = {
     "Relaxation",
     "Island",
   ],
-  authors: [{ name: "Visit Sri Lanka Team", url: "https://visitsrilanka.com" }],
+  authors: [{ name: "Visit Sri Lanka Team", url: "https://visitsrilanka.ai" }],
   creator: "Visit Sri Lanka Team",
   openGraph: {
     title: "Visit Sri Lanka",
     description: "Discover the beauty and culture of Sri Lanka",
-    url: "https://visitsrilanka.com",
+    url: "https://visitsrilanka.ai",
     siteName: "Visit Sri Lanka",
     images: [
       {
-        url: "https://visitsrilanka.com/og-image.jpg",
+        url: "https://visitsrilanka.ai/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Visit Sri Lanka - Discover the beauty and culture of Sri Lanka",

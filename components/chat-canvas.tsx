@@ -228,7 +228,8 @@ export function ChatCanvas() {
           <div className="mx-auto max-w-3xl">
             <Link
               className=" flex items-center px-3 pb-2 gap-2 "
-              href="https://www.visitsrilanka.ai"
+              href="https://visitsrilanka.ai/"
+              target="_blank"
             >
               <Image
                 src="/visitSriLanka.png"

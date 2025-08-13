@@ -32,6 +32,7 @@ export function ChatHeader() {
         <Link
           href="https://visitsrilanka.ai/"
           className="flex items-center gap-2 font-semibold"
+          target="_blank"
         >
           <Image
             src="/visitSriLanka.png"
