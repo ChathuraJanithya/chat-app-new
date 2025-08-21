@@ -151,7 +151,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         id: chatData.id,
         title: chatData.title,
         createdAt: new Date(chatData.created_at),
-        messages: (messagesData || []).map((msg) => ({
+        messages: (messagesData || []).map((msg: any) => ({
           id: msg.id,
           content: msg.content,
           role: msg.role as "user" | "assistant",
@@ -277,7 +277,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 .update({ title })
                 .eq("id", chatId)
                 .then(() => console.log("Chat title updated"))
-                .catch((err) =>
+                .catch((err: any) =>
                   console.error("Error updating chat title:", err)
                 );
             }
@@ -321,34 +321,44 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsTyping(true);
 
     try {
-      // console.log("Generating bot response for:", { chatId, userMessage });
+      let botResponse = "";
 
-      // Call the real API
-      const response = await chatService.sendMessage({
-        chatId,
-        message: userMessage,
+      await chatService.sendMessage(
+        { chatId, message: userMessage },
+        (chunk) => {
+          botResponse += chunk + " ";
+
+          // Update UI incrementally
+          setCurrentChat((prev) => {
+            if (!prev) return null;
+            const messages = [...prev.messages];
+            const lastMsg = messages[messages.length - 1];
+
+            if (lastMsg && lastMsg.role === "assistant") {
+              // Update existing assistant message
+              lastMsg.content = botResponse.trim();
+            } else {
+              // Add a new assistant message
+              messages.push({
+                content: botResponse.trim(),
+                role: "assistant",
+                id: "",
+                timestamp: new Date(),
+              });
+            }
+
+            return { ...prev, messages };
+          });
+        }
+      );
+
+      // Save full response to DB
+      await addMessageToChat(chatId, {
+        content: botResponse.trim(),
+        role: "assistant",
       });
-
-      if (response.success && response.message) {
-        // Add the bot response to the chat
-        await addMessageToChat(chatId, {
-          content: response.message,
-          role: "assistant",
-        });
-      } else {
-        // Handle API error
-        console.error("API response error:", response.error);
-        await addMessageToChat(chatId, {
-          content:
-            response.message ||
-            "I'm sorry, I encountered an error. Please try again.",
-          role: "assistant",
-        });
-      }
     } catch (error) {
       console.error("Error generating bot response:", error);
-
-      // Add error message to chat
       await addMessageToChat(chatId, {
         content:
           "I'm sorry, I'm having trouble connecting right now. Please try again.",
@@ -440,23 +450,25 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         return [];
       }
 
-      const formattedChats: ChatSession[] = (chatsData || []).map((chat) => ({
-        id: chat.id,
-        title: chat.title,
-        createdAt: new Date(chat.created_at),
-        messages: (chat.messages || [])
-          .sort(
-            (a, b) =>
-              new Date(a.created_at).getTime() -
-              new Date(b.created_at).getTime()
-          )
-          .map((msg) => ({
-            id: msg.id,
-            content: msg.content,
-            role: msg.role as "user" | "assistant",
-            timestamp: new Date(msg.created_at),
-          })),
-      }));
+      const formattedChats: ChatSession[] = (chatsData || []).map(
+        (chat: any) => ({
+          id: chat.id,
+          title: chat.title,
+          createdAt: new Date(chat.created_at),
+          messages: (chat.messages || [])
+            .sort(
+              (a: any, b: any) =>
+                new Date(a.created_at).getTime() -
+                new Date(b.created_at).getTime()
+            )
+            .map((msg: any) => ({
+              id: msg.id,
+              content: msg.content,
+              role: msg.role as "user" | "assistant",
+              timestamp: new Date(msg.created_at),
+            })),
+        })
+      );
 
       return formattedChats;
     } catch (error) {
