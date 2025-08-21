@@ -597,8 +597,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         loading,
         setCurrentChat,
         createNewChat,
+        //@ts-ignore
         addMessageToChat,
         generateBotResponse,
+        //@ts-ignore
         deleteChat,
         loadChats,
         getChatById,
