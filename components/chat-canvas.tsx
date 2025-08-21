@@ -226,25 +226,31 @@ export function ChatCanvas() {
       {currentChat?.messages.length > 0 && !isTyping && (
         <div className="p-4 bg-background/80 backdrop-blur-sm">
           <div className="mx-auto max-w-3xl">
-            <Link
-              className=" flex items-center px-3 pb-2 gap-2 "
-              href="https://visitsrilanka.ai/"
-              target="_blank"
-            >
-              <Image
-                src="/visitSriLanka.png"
-                alt="Visit Sri Lanka"
-                width={18}
-                height={18}
-                className=" rounded-full"
-              />
-              <span className=" text-xs underline">Visit Sri Lanka.ai</span>
-            </Link>
+            <div className=" flex mx-auto flex-col pb-3.5 gap-1">
+              <Link
+                className=" flex items-center justify-center text-center gap-2 "
+                href="https://visitsrilanka.ai/"
+                target="_blank"
+              >
+                <Image
+                  src="/visitSriLanka.png"
+                  alt="Visit Sri Lanka"
+                  width={18}
+                  height={18}
+                  className=" rounded-full"
+                />
+                <span className=" text-xs underline">Visit Sri Lanka.ai</span>
+              </Link>
+              <span className=" text-xs text-center text-muted-foreground">
+                Explore the beauty of Sri Lanka with our AI-powered travel
+                guide.
+              </span>
+            </div>
             <div className="relative rounded-3xl shadow-sm border dark:border-gray-700 transition-colors duration-200">
               <Textarea
                 ref={desktopInputRef}
                 placeholder="Message..."
-                className="min-h-12 resize-none pr-12 py-3 rounded-3xl border-0 focus-visible:ring-1 bg-card transition-colors duration-200"
+                className="min-h-12 resize-none pr-12 py-3 rounded-3xl rounded- border-0 focus-visible:ring-1 bg-card transition-colors duration-200"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
