@@ -28,6 +28,9 @@ export class ChatService {
   ): Promise<string> {
     const existingConversationId = this.conversationMap.get(request.chatId);
 
+    // ✅ Create AbortController (optional, for cancel support later)
+    const controller = new AbortController();
+
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
@@ -38,51 +41,67 @@ export class ChatService {
         message: request.message,
         conversationId: existingConversationId || request.conversationId,
       }),
+      signal: controller.signal, // ✅ allows abort
     });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    console.log("response from service", response.body);
-
     if (!response.body) {
       throw new Error("No response body");
     }
 
     const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    const decoder = new TextDecoder("utf-8");
     let buffer = "";
     let fullText = "";
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      buffer += decoder.decode(value, { stream: true });
-      const parts = buffer.split("\n\n");
-      buffer = parts.pop() || "";
+        // ✅ Decode current chunk
+        buffer += decoder.decode(value, { stream: true });
 
-      for (const part of parts) {
-        if (part.startsWith("data:")) {
-          const jsonString = part.replace(/^data:\s*/, "");
-          if (jsonString === "[DONE]") continue;
+        // ✅ Split by SSE delimiter
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() || "";
 
-          try {
-            const eventData = JSON.parse(jsonString);
-            if (eventData.answer) {
-              const newText = eventData.answer;
-              fullText += newText + " ";
-              onChunk(newText); // send partial text to UI
+        for (const part of parts) {
+          if (part.startsWith("data:")) {
+            const jsonString = part.replace(/^data:\s*/, "").trim();
+            if (!jsonString || jsonString === "[DONE]") continue;
+
+            try {
+              const eventData = JSON.parse(jsonString);
+
+              // ✅ Handle incremental answer
+              if (eventData.answer) {
+                const newText = eventData.answer;
+                fullText += newText;
+                onChunk(newText); // ✅ Update UI immediately
+              }
+            } catch (e) {
+              console.error(
+                "Error parsing SSE chunk:",
+                e,
+                "Chunk:",
+                jsonString
+              );
             }
-          } catch (e) {
-            console.error("Error parsing SSE chunk:", e);
           }
         }
       }
-    }
 
-    return fullText.trim();
+      // ✅ If conversationId is returned in the SSE stream, you can store it
+      // Example: if (eventData.conversation_id) this.conversationMap.set(request.chatId, eventData.conversation_id);
+
+      return fullText.trim();
+    } finally {
+      reader.releaseLock(); // ✅ Ensure reader is released
+    }
   }
 
   // Clear conversation for a specific chat (useful when starting a new conversation)

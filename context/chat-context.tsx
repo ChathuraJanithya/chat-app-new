@@ -226,16 +226,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Add a message to a chat
+  // Add a message to a chat and return DB ID
   const addMessageToChat = async (
     chatId: string,
-    message: Omit<ChatMessage, "id" | "timestamp">
-  ) => {
-    if (!user || !isSupabaseConfigured) return;
+    message: Omit<ChatMessage, "id" | "timestamp">,
+    opts?: { replaceId?: string } // ✅ NEW: allows replacing a temp message
+  ): Promise<string | null> => {
+    if (!user || !isSupabaseConfigured) return null;
 
     try {
-      //("Adding message to chat:", chatId, message);
-
       const { data: messageData, error } = await supabase
         .from("messages")
         .insert({
@@ -251,120 +250,232 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
 
-      //console.log("Message added successfully:", messageData);
-
-      const newMessage: ChatMessage = {
+      const persisted: ChatMessage = {
         id: messageData.id,
         content: messageData.content,
         role: messageData.role as "user" | "assistant",
         timestamp: new Date(messageData.created_at),
       };
 
-      // Update local state
-      setChats((prevChats) =>
-        prevChats.map((chat) => {
-          if (chat.id === chatId) {
-            // Update chat title if it's the first user message
-            let title = chat.title;
-            if (chat.title === "New Chat" && message.role === "user") {
-              title =
-                message.content.substring(0, 30) +
-                (message.content.length > 30 ? "..." : "");
-
-              // Update title in database
-              supabase
-                .from("chats")
-                .update({ title })
-                .eq("id", chatId)
-                .then(() => console.log("Chat title updated"))
-                .catch((err: any) =>
-                  console.error("Error updating chat title:", err)
-                );
-            }
-
+      if (opts?.replaceId) {
+        // ✅ Replace temp message in BOTH states (no append)
+        setChats((prevChats) =>
+          prevChats.map((chat) => {
+            if (chat.id !== chatId) return chat;
             return {
               ...chat,
-              title,
-              messages: [...chat.messages, newMessage],
+              messages: chat.messages.map((m) =>
+                m.id === opts.replaceId ? persisted : m
+              ),
             };
-          }
-          return chat;
-        })
-      );
+          })
+        );
 
-      // Update current chat if it's the active one
-      if (currentChat?.id === chatId) {
         setCurrentChat((prev) => {
-          if (!prev) return null;
-
-          let title = prev.title;
-          if (prev.title === "New Chat" && message.role === "user") {
-            title =
-              message.content.substring(0, 30) +
-              (message.content.length > 30 ? "..." : "");
-          }
-
+          if (!prev || prev.id !== chatId) return prev;
           return {
             ...prev,
-            title,
-            messages: [...prev.messages, newMessage],
+            messages: prev.messages.map((m) =>
+              m.id === opts.replaceId ? persisted : m
+            ),
+          };
+        });
+      } else {
+        // ✅ Default behavior: append to BOTH states
+        setChats((prevChats) =>
+          prevChats.map((chat) => {
+            if (chat.id !== chatId) return chat;
+            return {
+              ...chat,
+              messages: [...chat.messages, persisted],
+            };
+          })
+        );
+
+        setCurrentChat((prev) => {
+          if (!prev || prev.id !== chatId) return prev;
+          return {
+            ...prev,
+            messages: [...prev.messages, persisted],
           };
         });
       }
+
+      return messageData.id;
     } catch (error) {
       console.error("Error adding message:", error);
+      return null;
     }
   };
 
-  // Generate a bot response using the real API
+  // Generate bot response with proper streaming + state handling
   const generateBotResponse = async (chatId: string, userMessage: string) => {
     setIsTyping(true);
 
     try {
       let botResponse = "";
+      let firstChunk = true;
+      const tempId = `temp-assistant-${Date.now()}`; // unique temp id per stream
 
       await chatService.sendMessage(
         { chatId, message: userMessage },
         (chunk) => {
-          botResponse += chunk + " ";
+          botResponse += chunk;
 
-          // Update UI incrementally
-          setCurrentChat((prev) => {
-            if (!prev) return null;
-            const messages = [...prev.messages];
-            const lastMsg = messages[messages.length - 1];
+          if (firstChunk) {
+            // ✅ First chunk: stop typing and insert the placeholder WITH content
+            setIsTyping(false);
+            firstChunk = false;
 
-            if (lastMsg && lastMsg.role === "assistant") {
-              // Update existing assistant message
-              lastMsg.content = botResponse.trim();
-            } else {
-              // Add a new assistant message
-              messages.push({
-                content: botResponse.trim(),
-                role: "assistant",
-                id: "",
-                timestamp: new Date(),
-              });
-            }
+            const tempMsg: ChatMessage = {
+              id: tempId,
+              content: botResponse, // initialize with first chunk
+              role: "assistant",
+              timestamp: new Date(),
+            };
 
-            return { ...prev, messages };
-          });
+            // Insert temp message into BOTH states
+            setCurrentChat((prev) => {
+              if (!prev || prev.id !== chatId) return prev;
+              return { ...prev, messages: [...prev.messages, tempMsg] };
+            });
+            setChats((prevChats) =>
+              prevChats.map((chat) => {
+                if (chat.id !== chatId) return chat;
+                return { ...chat, messages: [...chat.messages, tempMsg] };
+              })
+            );
+          } else {
+            // ✅ Subsequent chunks: update the temp message in BOTH states
+            setCurrentChat((prev) => {
+              if (!prev || prev.id !== chatId) return prev;
+              return {
+                ...prev,
+                messages: prev.messages.map((m) =>
+                  m.id === tempId ? { ...m, content: botResponse } : m
+                ),
+              };
+            });
+            setChats((prevChats) =>
+              prevChats.map((chat) => {
+                if (chat.id !== chatId) return chat;
+                return {
+                  ...chat,
+                  messages: chat.messages.map((m) =>
+                    m.id === tempId ? { ...m, content: botResponse } : m
+                  ),
+                };
+              })
+            );
+          }
         }
       );
 
-      // Save full response to DB
-      await addMessageToChat(chatId, {
-        content: botResponse.trim(),
-        role: "assistant",
-      });
+      // Stream finished. If nothing arrived, show a graceful message.
+      if (botResponse.trim().length === 0) {
+        setIsTyping(false);
+        const fallback = "I'm sorry, I couldn't generate a response.";
+        // Update the temp (if created) or append a new assistant message
+        setCurrentChat((prev) => {
+          if (!prev || prev.id !== chatId) return prev;
+          const hasTemp = prev.messages.some((m) => m.id === tempId);
+          return {
+            ...prev,
+            messages: hasTemp
+              ? prev.messages.map((m) =>
+                  m.id === tempId ? { ...m, content: fallback } : m
+                )
+              : [
+                  ...prev.messages,
+                  {
+                    id: tempId,
+                    content: fallback,
+                    role: "assistant",
+                    timestamp: new Date(),
+                  },
+                ],
+          };
+        });
+        setChats((prevChats) =>
+          prevChats.map((chat) => {
+            if (chat.id !== chatId) return chat;
+            const hasTemp = chat.messages.some((m) => m.id === tempId);
+            return {
+              ...chat,
+              messages: hasTemp
+                ? chat.messages.map((m) =>
+                    m.id === tempId ? { ...m, content: fallback } : m
+                  )
+                : [
+                    ...chat.messages,
+                    {
+                      id: tempId,
+                      content: fallback,
+                      role: "assistant",
+                      timestamp: new Date(),
+                    },
+                  ],
+            };
+          })
+        );
+      }
+
+      // ✅ Persist final content and REPLACE temp message (no duplicate)
+      const persistedId = await addMessageToChat(
+        chatId,
+        { content: botResponse.trim(), role: "assistant" },
+        { replaceId: tempId } // <- critical: replace, don't append
+      );
+
+      // Nothing else to do: addMessageToChat already replaced temp across states
     } catch (error) {
       console.error("Error generating bot response:", error);
-      await addMessageToChat(chatId, {
-        content:
-          "I'm sorry, I'm having trouble connecting right now. Please try again.",
-        role: "assistant",
+
+      // Show fallback in UI
+      const errorMsg =
+        "I'm sorry, I'm having trouble connecting right now. Please try again.";
+      const tempId = `temp-assistant-${Date.now()}`;
+
+      setCurrentChat((prev) => {
+        if (!prev || prev.id !== chatId) return prev;
+        return {
+          ...prev,
+          messages: [
+            ...prev.messages,
+            {
+              id: tempId,
+              content: errorMsg,
+              role: "assistant",
+              timestamp: new Date(),
+            },
+          ],
+        };
       });
+      setChats((prevChats) =>
+        prevChats.map((chat) => {
+          if (chat.id !== chatId) return chat;
+          return {
+            ...chat,
+            messages: [
+              ...chat.messages,
+              {
+                id: tempId,
+                content: errorMsg,
+                role: "assistant",
+                timestamp: new Date(),
+              },
+            ],
+          };
+        })
+      );
+
+      await addMessageToChat(
+        chatId,
+        { content: errorMsg, role: "assistant" },
+        { replaceId: tempId }
+      );
     } finally {
+      // If there was no chunk, we may still be typing; ensure off.
       setIsTyping(false);
     }
   };
