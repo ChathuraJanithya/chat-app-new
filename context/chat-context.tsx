@@ -22,6 +22,7 @@ interface ChatContextProps {
   deleteChat: (chatId: string) => Promise<void>;
   loadChats: () => Promise<void>;
   getChatById: (chatId: string) => Promise<ChatSession | null>;
+  isStreaming: boolean;
 }
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
@@ -33,6 +34,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { user, databaseReady } = useAuth();
   const chatService = ChatService.getInstance();
+  const [isStreaming, setIsStreaming] = useState(false);
 
   // Load chats from Supabase
   const loadChats = async () => {
@@ -326,6 +328,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             // ✅ First chunk: stop typing and insert the placeholder WITH content
             setIsTyping(false);
             firstChunk = false;
+            setIsStreaming(true);
 
             const tempMsg: ChatMessage = {
               id: tempId,
@@ -374,6 +377,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       // Stream finished. If nothing arrived, show a graceful message.
       if (botResponse.trim().length === 0) {
         setIsTyping(false);
+        setIsStreaming(false);
         const fallback = "I'm sorry, I couldn't generate a response.";
         // Update the temp (if created) or append a new assistant message
         setCurrentChat((prev) => {
@@ -604,6 +608,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         deleteChat,
         loadChats,
         getChatById,
+        isStreaming,
       }}
     >
       {children}

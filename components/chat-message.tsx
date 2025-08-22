@@ -2,18 +2,26 @@ import type { ChatMessage } from "@/types/chat";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import Markdown from "react-markdown";
+import { useChat } from "@/context/chat-context";
+import {
+  AnimatedStreamingMessage,
+  AnimatedStreamingMessageVariant,
+} from "./animated-streaming-message";
 
 interface ChatMessageProps {
   message: ChatMessage;
+  isLastMessage?: boolean;
 }
 
-export function ChatMessageItem({ message }: ChatMessageProps) {
+export function ChatMessageItem({ message, isLastMessage }: ChatMessageProps) {
   const isUser = message.role === "user";
 
   // Format the timestamp to show how long ago the message was sent
   const timeAgo = formatDistanceToNow(new Date(message.timestamp), {
     addSuffix: true,
   });
+
+  const { isStreaming } = useChat();
 
   return (
     <div
@@ -30,10 +38,22 @@ export function ChatMessageItem({ message }: ChatMessageProps) {
             : "bg-transparent rounded-tl-none"
         )}
       >
-        <div className="prose prose-invert text-sm sm:text-base whitespace-pre-wrap">
-          <Markdown>{message.content}</Markdown>
-        </div>
-        <span className="text-[10px] opacity-70 self-end mt-1">{timeAgo}</span>
+        {isStreaming && isLastMessage ? (
+          <AnimatedStreamingMessageVariant
+            message={message}
+            isStreaming={isStreaming}
+            variant="typewriter"
+          />
+        ) : (
+          <div className="prose prose-invert text-sm sm:text-base whitespace-pre-wrap">
+            <Markdown>{message.content}</Markdown>
+          </div>
+        )}
+        {!isStreaming && (
+          <span className="text-[10px] opacity-70 self-end mt-1">
+            {timeAgo}
+          </span>
+        )}
       </div>
     </div>
   );

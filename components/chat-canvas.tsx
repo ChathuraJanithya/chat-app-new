@@ -199,7 +199,11 @@ export function ChatCanvas() {
       >
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
           {currentChat?.messages.map((message, index) => (
-            <ChatMessageItem key={index} message={message} />
+            <ChatMessageItem
+              key={index}
+              message={message}
+              isLastMessage={index === currentChat.messages.length - 1}
+            />
           ))}
 
           {isTyping && (

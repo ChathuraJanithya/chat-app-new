@@ -193,7 +193,11 @@ export function AnonymousChatCanvas() {
 
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
           {anonymousChat.messages.map((message, index) => (
-            <ChatMessageItem key={index} message={message} />
+            <ChatMessageItem
+              key={index}
+              message={message}
+              isLastMessage={index === anonymousChat.messages.length - 1}
+            />
           ))}
 
           {isTyping && (
