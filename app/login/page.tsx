@@ -221,7 +221,7 @@ export default function LoginPage() {
                     Forgot password?
                   </Link>
                 </div> */}
-                <Label htmlFor="email">Password</Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
