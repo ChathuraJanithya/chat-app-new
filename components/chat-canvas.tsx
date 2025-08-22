@@ -198,8 +198,8 @@ export function ChatCanvas() {
         className="flex-1 overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [::-webkit-scrollbar]:hidden p-4 md:px-8 pb-2 scroll-smooth"
       >
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
-          {currentChat?.messages.map((message) => (
-            <ChatMessageItem key={message.id} message={message} />
+          {currentChat?.messages.map((message, index) => (
+            <ChatMessageItem key={index} message={message} />
           ))}
 
           {isTyping && (

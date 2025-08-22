@@ -192,8 +192,8 @@ export function AnonymousChatCanvas() {
         <MessageLimitBanner />
 
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
-          {anonymousChat.messages.map((message) => (
-            <ChatMessageItem key={message.id} message={message} />
+          {anonymousChat.messages.map((message, index) => (
+            <ChatMessageItem key={index} message={message} />
           ))}
 
           {isTyping && (
