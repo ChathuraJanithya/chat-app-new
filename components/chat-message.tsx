@@ -1,8 +1,9 @@
-import type { ChatMessage } from "@/types/chat";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
 import Markdown from "react-markdown";
+import { formatDistanceToNow } from "date-fns";
+import type { ChatMessage } from "@/types/chat";
 import { useChat } from "@/context/chat-context";
+
 import {
   AnimatedStreamingMessage,
   AnimatedStreamingMessageVariant,
