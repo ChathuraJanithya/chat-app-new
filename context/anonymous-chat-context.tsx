@@ -63,7 +63,7 @@ export function AnonymousChatProvider({
   // Auto-convert when user logs in
   useEffect(() => {
     if (user && anonymousChat && anonymousChat.messages.length > 0) {
-      console.log("User logged in with existing anonymous chat, converting...");
+      //    console.log("User logged in with existing anonymous chat, converting...");
       convertToUserChat();
     }
   }, [user, anonymousChat]);
@@ -86,7 +86,7 @@ export function AnonymousChatProvider({
           ANONYMOUS_CHAT_KEY as string,
           JSON.stringify(chatData)
         );
-        console.log("Anonymous chat saved to localStorage");
+        // console.log("Anonymous chat saved to localStorage");
       } catch (error) {
         console.error("Error saving to localStorage:", error);
       }
@@ -98,7 +98,7 @@ export function AnonymousChatProvider({
       const saved = localStorage.getItem(ANONYMOUS_CHAT_KEY as string);
       if (saved) {
         const chatData = JSON.parse(saved);
-        console.log("Loaded anonymous chat from localStorage:", chatData);
+        //  console.log("Loaded anonymous chat from localStorage:", chatData);
 
         // Convert date strings back to Date objects
         return {
@@ -117,12 +117,12 @@ export function AnonymousChatProvider({
   };
 
   const startAnonymousChat = async (initialMessage?: string) => {
-    console.log("startAnonymousChat called with:", initialMessage);
+    // console.log("startAnonymousChat called with:", initialMessage);
 
     // Check if there's an existing chat in localStorage first
     const existingChat = loadFromLocalStorage();
     if (existingChat && existingChat.messages.length > 0) {
-      console.log("Found existing chat, loading it");
+      //  console.log("Found existing chat, loading it");
       setAnonymousChat(existingChat);
       setMessageCount(existingChat.messages.length);
       setHasReachedLimit(existingChat.messages.length >= maxMessages);
@@ -139,7 +139,7 @@ export function AnonymousChatProvider({
       messages: [],
     };
 
-    console.log("Creating new anonymous chat:", newChat);
+    //console.log("Creating new anonymous chat:", newChat);
 
     // If we have an initial message, add it and generate response
     if (initialMessage) {
@@ -322,17 +322,17 @@ export function AnonymousChatProvider({
   const sendMessage = async (content: string) => {
     if (!content.trim() || !canSendMessage) return;
 
-    console.log("sendMessage called with:", content);
+    //("sendMessage called with:", content);
 
     // Start chat if it doesn't exist
     if (!anonymousChat) {
-      console.log("No existing chat, starting new one with message");
+      // console.log("No existing chat, starting new one with message");
       await startAnonymousChat(content);
       return;
     }
 
     // Add user message immediately
-    console.log("Adding user message to existing chat");
+    // console.log("Adding user message to existing chat");
     const userMessage: Omit<ChatMessage, "id" | "timestamp"> = {
       content,
       role: "user",
@@ -343,13 +343,13 @@ export function AnonymousChatProvider({
     // Generate bot response if we haven't hit the limit
     const newMessageCount = messageCount + 1;
     if (newMessageCount < maxMessages) {
-      console.log("Generating bot response for user message");
+      // console.log("Generating bot response for user message");
       // Use setTimeout to ensure the user message is rendered first
       setTimeout(() => {
         generateBotResponse(content);
       }, 100);
     } else {
-      console.log("Message limit reached, not generating response");
+      //console.log("Message limit reached, not generating response");
       setHasReachedLimit(true);
     }
   };
@@ -365,7 +365,7 @@ export function AnonymousChatProvider({
     // Clear from localStorage
     try {
       localStorage.removeItem(ANONYMOUS_CHAT_KEY as string);
-      console.log("Anonymous chat cleared from localStorage");
+      // console.log("Anonymous chat cleared from localStorage");
     } catch (error) {
       console.error("Error clearing localStorage:", error);
     }
@@ -377,7 +377,7 @@ export function AnonymousChatProvider({
     }
 
     try {
-      console.log("Converting anonymous chat to user chat...");
+      //  console.log("Converting anonymous chat to user chat...");
 
       // Create a new chat in the database
       const newChat = await createNewChat();
