@@ -144,8 +144,8 @@ export function AnonymousChatCanvas() {
   // Show welcome screen if no chat exists
   if (!anonymousChat) {
     return (
-      <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
-        <div className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth">
+      <div className="flex flex-1 flex-col hide-scrollbar h-[calc(100vh-3.5rem)] relative">
+        <div className="flex-1 overflow-auto hide-scrollbar p-4 md:px-8 pb-2 scroll-smooth">
           <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center">
             <h2 className="text-2xl font-semibold">
               Welcome to Anonymous Chat
@@ -184,10 +184,10 @@ export function AnonymousChatCanvas() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
+    <div className="flex flex-1 flex-col  hide-scrollbar h-[calc(100vh-3.5rem)] relative">
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth"
+        className="flex-1 overflow-auto hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [::-webkit-scrollbar]:hidden p-4 md:px-8 pb-2 scroll-smooth"
       >
         <MessageLimitBanner />
 
