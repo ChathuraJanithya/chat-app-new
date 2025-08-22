@@ -1,11 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import Image from "next/image";
 import { LogIn, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAnonymousChat } from "@/context/anonymous-chat-context";
-import Link from "next/link";
-import Image from "next/image";
 
 export function AnonymousChatHeader() {
   const { anonymousChat, messageCount, maxMessages, hasReachedLimit } =
