@@ -38,17 +38,17 @@ export function ChatMessageItem({ message, isLastMessage }: ChatMessageProps) {
             : "bg-transparent rounded-tl-none"
         )}
       >
-        {isStreaming && isLastMessage ? (
+        {/*  {isStreaming && isLastMessage ? (
           <AnimatedStreamingMessageVariant
             message={message}
             isStreaming={isStreaming}
             variant="typewriter"
           />
-        ) : (
-          <div className="prose prose-invert text-sm sm:text-base whitespace-pre-wrap">
-            <Markdown>{message.content}</Markdown>
-          </div>
-        )}
+        ) : ( */}
+        <div className="prose prose-invert text-sm sm:text-base whitespace-pre-wrap">
+          <Markdown>{message.content}</Markdown>
+        </div>
+        {/*     )} */}
         {!isStreaming && (
           <span className="text-[10px] opacity-70 self-end mt-1">
             {timeAgo}
