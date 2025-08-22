@@ -3,17 +3,18 @@
 import type React from "react";
 
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ChatMessageItem } from "@/components/chat-message";
-import { TypingAnimation } from "@/components/typing-animation";
-import { ScrollToBottom } from "@/components/scroll-to-bottom";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useChat } from "@/context/chat-context";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useChat } from "@/context/chat-context";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Textarea } from "@/components/ui/textarea";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChatMessageItem } from "@/components/chat-message";
+import { ScrollToBottom } from "@/components/scroll-to-bottom";
+import { TypingAnimation } from "@/components/typing-animation";
 
 export function ChatCanvas() {
   const router = useRouter();
@@ -195,11 +196,15 @@ export function ChatCanvas() {
       )}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth"
+        className="flex-1 overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [::-webkit-scrollbar]:hidden p-4 md:px-8 pb-2 scroll-smooth"
       >
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
-          {currentChat?.messages.map((message) => (
-            <ChatMessageItem key={message.id} message={message} />
+          {currentChat?.messages.map((message, index) => (
+            <ChatMessageItem
+              key={index}
+              message={message}
+              isLastMessage={index === currentChat.messages.length - 1}
+            />
           ))}
 
           {isTyping && (

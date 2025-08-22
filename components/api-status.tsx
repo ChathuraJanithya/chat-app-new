@@ -1,29 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { CheckCircle, XCircle, AlertCircle, RefreshCw } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
+import { CheckCircle, XCircle, AlertCircle, RefreshCw } from "lucide-react";
 interface ApiStatus {
-  isConfigured: boolean
-  isReachable: boolean
-  error?: string
-  lastChecked?: Date
+  isConfigured: boolean;
+  isReachable: boolean;
+  error?: string;
+  lastChecked?: Date;
 }
 
 export function ApiStatus() {
-  const [status, setStatus] = useState<ApiStatus>({ isConfigured: false, isReachable: false })
-  const [isChecking, setIsChecking] = useState(false)
+  const [status, setStatus] = useState<ApiStatus>({
+    isConfigured: false,
+    isReachable: false,
+  });
+  const [isChecking, setIsChecking] = useState(false);
 
   const checkApiStatus = async () => {
-    setIsChecking(true)
+    setIsChecking(true);
 
     try {
       // Check if environment variables are configured
-      const apiUrl = process.env.NEXT_PUBLIC_CHAT_API_URL
-      const hasApiKey = !!process.env.CHAT_API_KEY // We can't access server-side env vars directly
+      const apiUrl = process.env.NEXT_PUBLIC_CHAT_API_URL;
+      const hasApiKey = !!process.env.CHAT_API_KEY; // We can't access server-side env vars directly
 
       if (!apiUrl) {
         setStatus({
@@ -31,8 +40,8 @@ export function ApiStatus() {
           isReachable: false,
           error: "NEXT_PUBLIC_CHAT_API_URL not configured",
           lastChecked: new Date(),
-        })
-        return
+        });
+        return;
       }
 
       // Test API connectivity with a simple request
@@ -45,22 +54,22 @@ export function ApiStatus() {
           chatId: "test-connection",
           message: "test",
         }),
-      })
+      });
 
       if (response.ok) {
         setStatus({
           isConfigured: true,
           isReachable: true,
           lastChecked: new Date(),
-        })
+        });
       } else {
-        const errorData = await response.json()
+        const errorData = await response.json();
         setStatus({
           isConfigured: true,
           isReachable: false,
           error: errorData.error || `HTTP ${response.status}`,
           lastChecked: new Date(),
-        })
+        });
       }
     } catch (error) {
       setStatus({
@@ -68,38 +77,40 @@ export function ApiStatus() {
         isReachable: false,
         error: error instanceof Error ? error.message : "Unknown error",
         lastChecked: new Date(),
-      })
+      });
     } finally {
-      setIsChecking(false)
+      setIsChecking(false);
     }
-  }
+  };
 
   useEffect(() => {
-    checkApiStatus()
-  }, [])
+    checkApiStatus();
+  }, []);
 
   const getStatusIcon = () => {
-    if (isChecking) return <RefreshCw className="h-4 w-4 animate-spin" />
-    if (!status.isConfigured) return <XCircle className="h-4 w-4 text-red-500" />
-    if (status.isReachable) return <CheckCircle className="h-4 w-4 text-green-500" />
-    return <AlertCircle className="h-4 w-4 text-yellow-500" />
-  }
+    if (isChecking) return <RefreshCw className="h-4 w-4 animate-spin" />;
+    if (!status.isConfigured)
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    if (status.isReachable)
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+  };
 
   const getStatusText = () => {
-    if (isChecking) return "Checking..."
-    if (!status.isConfigured) return "Not Configured"
-    if (status.isReachable) return "Connected"
-    return "Connection Error"
-  }
+    if (isChecking) return "Checking...";
+    if (!status.isConfigured) return "Not Configured";
+    if (status.isReachable) return "Connected";
+    return "Connection Error";
+  };
 
   const getStatusColor = () => {
-    if (!status.isConfigured) return "destructive"
-    if (status.isReachable) return "default"
-    return "secondary"
-  }
+    if (!status.isConfigured) return "destructive";
+    if (status.isReachable) return "default";
+    return "secondary";
+  };
 
   if (process.env.NODE_ENV === "production") {
-    return null
+    return null;
   }
 
   return (
@@ -109,7 +120,9 @@ export function ApiStatus() {
           {getStatusIcon()}
           Chat API Status
         </CardTitle>
-        <CardDescription>Connection status to the external chat API</CardDescription>
+        <CardDescription>
+          Connection status to the external chat API
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
@@ -119,27 +132,37 @@ export function ApiStatus() {
 
         {status.error && (
           <div className="p-3 bg-red-50 dark:bg-red-950 rounded-md">
-            <p className="text-sm text-red-800 dark:text-red-200">{status.error}</p>
+            <p className="text-sm text-red-800 dark:text-red-200">
+              {status.error}
+            </p>
           </div>
         )}
 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span>API URL:</span>
-            <span className="text-muted-foreground">{process.env.NEXT_PUBLIC_CHAT_API_URL || "Not set"}</span>
+            <span className="text-muted-foreground">
+              {process.env.NEXT_PUBLIC_CHAT_API_URL || "Not set"}
+            </span>
           </div>
           {status.lastChecked && (
             <div className="flex justify-between">
               <span>Last checked:</span>
-              <span className="text-muted-foreground">{status.lastChecked.toLocaleTimeString()}</span>
+              <span className="text-muted-foreground">
+                {status.lastChecked.toLocaleTimeString()}
+              </span>
             </div>
           )}
         </div>
 
-        <Button onClick={checkApiStatus} disabled={isChecking} className="w-full">
+        <Button
+          onClick={checkApiStatus}
+          disabled={isChecking}
+          className="w-full"
+        >
           {isChecking ? "Checking..." : "Check Connection"}
         </Button>
       </CardContent>
     </Card>
-  )
+  );
 }

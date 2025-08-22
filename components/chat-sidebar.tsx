@@ -70,11 +70,11 @@ export function ChatSidebar() {
     setError(null);
 
     try {
-      console.log("Starting new chat creation...");
+      //  console.log("Starting new chat creation...");
       const newChat = await createNewChat();
 
       if (newChat) {
-        console.log("New chat created successfully:", newChat.id);
+        // console.log("New chat created successfully:", newChat.id);
         router.push(`/chat/${newChat.id}`);
 
         // Close sidebar on mobile after creating new chat
@@ -111,17 +111,17 @@ export function ChatSidebar() {
     setError(null);
 
     try {
-      console.log("Deleting chat:", chatToDelete.id);
+      //console.log("Deleting chat:", chatToDelete.id);
       const result = await deleteChat(chatToDelete.id);
 
       // Handle navigation based on deletion result
       if (result === null) {
         // No other chats available, go to home
-        console.log("No other chats available, redirecting to home");
+        // console.log("No other chats available, redirecting to home");
         router.push("/");
       } else if (typeof result === "string" && result !== "no-change") {
         // Switch to another chat
-        console.log("Switching to chat:", result);
+        //  console.log("Switching to chat:", result);
         router.push(`/chat/${result}`);
       }
       // If result is "no-change", stay on current page
@@ -231,7 +231,7 @@ export function ChatSidebar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 hover:bg-transparent h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={(e) =>
                       handleDeleteClick({ id: chat.id, title: chat.title }, e)
                     }

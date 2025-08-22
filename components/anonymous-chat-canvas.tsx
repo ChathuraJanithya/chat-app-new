@@ -144,8 +144,8 @@ export function AnonymousChatCanvas() {
   // Show welcome screen if no chat exists
   if (!anonymousChat) {
     return (
-      <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
-        <div className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth">
+      <div className="flex flex-1 flex-col hide-scrollbar h-[calc(100vh-3.5rem)] relative">
+        <div className="flex-1 overflow-auto hide-scrollbar p-4 md:px-8 pb-2 scroll-smooth">
           <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center">
             <h2 className="text-2xl font-semibold">
               Welcome to Anonymous Chat
@@ -184,16 +184,20 @@ export function AnonymousChatCanvas() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-[calc(100vh-3.5rem)] relative">
+    <div className="flex flex-1 flex-col  hide-scrollbar h-[calc(100vh-3.5rem)] relative">
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-auto p-4 md:px-8 pb-2 scroll-smooth"
+        className="flex-1 overflow-auto hide-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [::-webkit-scrollbar]:hidden p-4 md:px-8 pb-2 scroll-smooth"
       >
         <MessageLimitBanner />
 
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
-          {anonymousChat.messages.map((message) => (
-            <ChatMessageItem key={message.id} message={message} />
+          {anonymousChat.messages.map((message, index) => (
+            <ChatMessageItem
+              key={index}
+              message={message}
+              isLastMessage={index === anonymousChat.messages.length - 1}
+            />
           ))}
 
           {isTyping && (
@@ -266,8 +270,7 @@ export function AnonymousChatCanvas() {
             {hasReachedLimit && (
               <div className="text-center mt-2">
                 <p className="text-sm text-muted-foreground">
-                  Message limit reached ({messageCount}/{maxMessages}) • Your
-                  chat is saved locally •
+                  Message limit reached ({messageCount}/{maxMessages})
                   <Button
                     variant="link"
                     className="p-0 h-auto text-sm ml-1"

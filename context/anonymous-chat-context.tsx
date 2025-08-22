@@ -30,7 +30,7 @@ const AnonymousChatContext = createContext<
   AnonymousChatContextProps | undefined
 >(undefined);
 
-const ANONYMOUS_CHAT_KEY = process.env.NEXT_PUBLIC_ANONYMOUS_CHAT_KEY
+const ANONYMOUS_CHAT_KEY = process.env.NEXT_PUBLIC_ANONYMOUS_CHAT_KEY;
 
 export function AnonymousChatProvider({
   children,
@@ -63,7 +63,7 @@ export function AnonymousChatProvider({
   // Auto-convert when user logs in
   useEffect(() => {
     if (user && anonymousChat && anonymousChat.messages.length > 0) {
-      console.log("User logged in with existing anonymous chat, converting...");
+      //    console.log("User logged in with existing anonymous chat, converting...");
       convertToUserChat();
     }
   }, [user, anonymousChat]);
@@ -86,7 +86,7 @@ export function AnonymousChatProvider({
           ANONYMOUS_CHAT_KEY as string,
           JSON.stringify(chatData)
         );
-        console.log("Anonymous chat saved to localStorage");
+        // console.log("Anonymous chat saved to localStorage");
       } catch (error) {
         console.error("Error saving to localStorage:", error);
       }
@@ -98,7 +98,7 @@ export function AnonymousChatProvider({
       const saved = localStorage.getItem(ANONYMOUS_CHAT_KEY as string);
       if (saved) {
         const chatData = JSON.parse(saved);
-        console.log("Loaded anonymous chat from localStorage:", chatData);
+        //  console.log("Loaded anonymous chat from localStorage:", chatData);
 
         // Convert date strings back to Date objects
         return {
@@ -117,12 +117,12 @@ export function AnonymousChatProvider({
   };
 
   const startAnonymousChat = async (initialMessage?: string) => {
-    console.log("startAnonymousChat called with:", initialMessage);
+    // console.log("startAnonymousChat called with:", initialMessage);
 
     // Check if there's an existing chat in localStorage first
     const existingChat = loadFromLocalStorage();
     if (existingChat && existingChat.messages.length > 0) {
-      console.log("Found existing chat, loading it");
+      //  console.log("Found existing chat, loading it");
       setAnonymousChat(existingChat);
       setMessageCount(existingChat.messages.length);
       setHasReachedLimit(existingChat.messages.length >= maxMessages);
@@ -139,7 +139,7 @@ export function AnonymousChatProvider({
       messages: [],
     };
 
-    console.log("Creating new anonymous chat:", newChat);
+    //console.log("Creating new anonymous chat:", newChat);
 
     // If we have an initial message, add it and generate response
     if (initialMessage) {
@@ -207,13 +207,7 @@ export function AnonymousChatProvider({
     currentChat: ChatSession,
     currentMessageCount: number
   ) => {
-    console.log("generateBotResponseInternal called with:", {
-      userMessage,
-      currentMessageCount,
-    });
-
     if (currentMessageCount >= maxMessages - 1) {
-      console.log("Message limit reached, not generating response");
       setHasReachedLimit(true);
       return;
     }
@@ -221,69 +215,95 @@ export function AnonymousChatProvider({
     setIsTyping(true);
 
     try {
-      console.log("Calling chat service for:", userMessage);
+      let botResponse = "";
+      let firstChunk = true;
 
-      // Call the real API for anonymous chat
-      const response = await chatService.sendMessage({
-        chatId: currentChat.id,
-        message: userMessage,
-      });
-
-      let botMessage = response.message;
-
-      // Add context about remaining messages
-      const remainingMessages = maxMessages - currentMessageCount - 1;
-      if (response.success && remainingMessages > 0) {
-        botMessage += `\n\n*Anonymous chat: ${remainingMessages} message${
-          remainingMessages !== 1 ? "s" : ""
-        } remaining. [Sign up](/signup) for unlimited chatting.*`;
-      } else if (response.success && remainingMessages <= 0) {
-        botMessage += `\n\n*You've reached the message limit for anonymous chat. [Sign up](/signup) or [log in](/login) to continue this conversation.*`;
-      }
-
-      const botResponse: ChatMessage = {
-        id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        content: botMessage,
+      // ✅ Add placeholder assistant message
+      const placeholderId = `temp-assistant-${Date.now()}`;
+      const placeholderMessage: ChatMessage = {
+        id: placeholderId,
+        content: "",
         role: "assistant",
         timestamp: new Date(),
       };
 
-      console.log("Adding bot response:", botResponse);
+      /*  setAnonymousChat((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          messages: [...prev.messages, placeholderMessage],
+        };
+      }); */
 
-      // Update the chat state directly instead of using addMessageToAnonymousChat
+      // ✅ Stream response chunks
+      await chatService.sendMessage(
+        { chatId: currentChat.id, message: userMessage },
+        (chunk) => {
+          if (firstChunk) {
+            setIsTyping(false); // Hide typing indicator after first chunk
+            firstChunk = false;
+            setAnonymousChat((prev) => {
+              if (!prev) return null;
+              return {
+                ...prev,
+                messages: [...prev.messages, placeholderMessage],
+              };
+            });
+          }
+
+          botResponse += chunk;
+
+          // Update placeholder message content as chunks arrive
+          setAnonymousChat((prev) => {
+            if (!prev) return null;
+            const updatedMessages = prev.messages.map((msg) =>
+              msg.id === placeholderId ? { ...msg, content: botResponse } : msg
+            );
+            return { ...prev, messages: updatedMessages };
+          });
+        }
+      );
+
+      // ✅ Add remaining message count info
+      const remainingMessages = maxMessages - currentMessageCount - 1;
+      if (remainingMessages > 0) {
+        botResponse += `\n\n*Anonymous chat: ${remainingMessages} message${
+          remainingMessages !== 1 ? "s" : ""
+        } remaining. [Sign up](/signup) for unlimited chatting.*`;
+      } else {
+        botResponse += `\n\n*You've reached the message limit for anonymous chat. [Sign up](/signup) or [log in](/login) to continue this conversation.*`;
+      }
+
+      // ✅ Replace placeholder with final content
       setAnonymousChat((prev) => {
         if (!prev) return null;
-        const updatedChat = {
-          ...prev,
-          messages: [...prev.messages, botResponse],
-        };
-        console.log("Updated chat with bot response:", updatedChat);
-        return updatedChat;
+        const updatedMessages = prev.messages.map((msg) =>
+          msg.id === placeholderId ? { ...msg, content: botResponse } : msg
+        );
+        return { ...prev, messages: updatedMessages };
       });
 
+      // ✅ Update message count
       const newCount = currentMessageCount + 1;
       setMessageCount(newCount);
-
       if (newCount >= maxMessages) {
         setHasReachedLimit(true);
       }
     } catch (error) {
       console.error("Error generating anonymous bot response:", error);
 
-      const errorResponse: ChatMessage = {
-        id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        content:
-          "I'm sorry, I'm having trouble connecting right now. This is an anonymous chat session with limited messages. Please log in for unlimited chatting.",
-        role: "assistant",
-        timestamp: new Date(),
-      };
+      const errorMessage =
+        "I'm sorry, I'm having trouble connecting right now. This is an anonymous chat session with limited messages. Please log in for unlimited chatting.";
 
+      // Replace placeholder with error message
       setAnonymousChat((prev) => {
         if (!prev) return null;
-        return {
-          ...prev,
-          messages: [...prev.messages, errorResponse],
-        };
+        const updatedMessages = prev.messages.map((msg) =>
+          msg.role === "assistant" && msg.content === ""
+            ? { ...msg, content: errorMessage }
+            : msg
+        );
+        return { ...prev, messages: updatedMessages };
       });
 
       const newCount = currentMessageCount + 1;
@@ -302,17 +322,17 @@ export function AnonymousChatProvider({
   const sendMessage = async (content: string) => {
     if (!content.trim() || !canSendMessage) return;
 
-    console.log("sendMessage called with:", content);
+    //("sendMessage called with:", content);
 
     // Start chat if it doesn't exist
     if (!anonymousChat) {
-      console.log("No existing chat, starting new one with message");
+      // console.log("No existing chat, starting new one with message");
       await startAnonymousChat(content);
       return;
     }
 
     // Add user message immediately
-    console.log("Adding user message to existing chat");
+    // console.log("Adding user message to existing chat");
     const userMessage: Omit<ChatMessage, "id" | "timestamp"> = {
       content,
       role: "user",
@@ -323,13 +343,13 @@ export function AnonymousChatProvider({
     // Generate bot response if we haven't hit the limit
     const newMessageCount = messageCount + 1;
     if (newMessageCount < maxMessages) {
-      console.log("Generating bot response for user message");
+      // console.log("Generating bot response for user message");
       // Use setTimeout to ensure the user message is rendered first
       setTimeout(() => {
         generateBotResponse(content);
       }, 100);
     } else {
-      console.log("Message limit reached, not generating response");
+      //console.log("Message limit reached, not generating response");
       setHasReachedLimit(true);
     }
   };
@@ -345,7 +365,7 @@ export function AnonymousChatProvider({
     // Clear from localStorage
     try {
       localStorage.removeItem(ANONYMOUS_CHAT_KEY as string);
-      console.log("Anonymous chat cleared from localStorage");
+      // console.log("Anonymous chat cleared from localStorage");
     } catch (error) {
       console.error("Error clearing localStorage:", error);
     }
@@ -357,7 +377,7 @@ export function AnonymousChatProvider({
     }
 
     try {
-      console.log("Converting anonymous chat to user chat...");
+      //  console.log("Converting anonymous chat to user chat...");
 
       // Create a new chat in the database
       const newChat = await createNewChat();

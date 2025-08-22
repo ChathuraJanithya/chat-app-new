@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { ChatSidebar } from "@/components/chat-sidebar";
-import { ChatHeader } from "@/components/chat-header";
-import { ChatCanvas } from "@/components/chat-canvas";
-import { SidebarProvider, useSidebarContext } from "@/components/ui/sidebar";
-import { MobileOverlay } from "@/components/mobile-overlay";
 import { useSwipe } from "@/hooks/use-swipe";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useChat } from "@/context/chat-context";
 import { useAuth } from "@/context/auth-context";
+import { ChatCanvas } from "@/components/chat-canvas";
+import { ChatHeader } from "@/components/chat-header";
+import { useParams, useRouter } from "next/navigation";
+import { ChatSidebar } from "@/components/chat-sidebar";
 import { TypingAnimation } from "@/components/typing-animation";
+import { SidebarProvider, useSidebarContext } from "@/components/ui/sidebar";
 
 function ChatPage() {
   const { chatId } = useParams();
