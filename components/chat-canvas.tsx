@@ -3,17 +3,18 @@
 import type React from "react";
 
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ChatMessageItem } from "@/components/chat-message";
-import { TypingAnimation } from "@/components/typing-animation";
-import { ScrollToBottom } from "@/components/scroll-to-bottom";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useChat } from "@/context/chat-context";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useChat } from "@/context/chat-context";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Textarea } from "@/components/ui/textarea";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChatMessageItem } from "@/components/chat-message";
+import { ScrollToBottom } from "@/components/scroll-to-bottom";
+import { TypingAnimation } from "@/components/typing-animation";
 
 export function ChatCanvas() {
   const router = useRouter();
