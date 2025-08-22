@@ -99,7 +99,10 @@ export function ChatHeader() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {user ? (
-                <DropdownMenuItem onClick={handleSignOut}>
+                <DropdownMenuItem
+                  className=" hover:cursor-pointer"
+                  onClick={handleSignOut}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign out</span>
                 </DropdownMenuItem>

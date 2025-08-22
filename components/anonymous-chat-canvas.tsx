@@ -266,8 +266,7 @@ export function AnonymousChatCanvas() {
             {hasReachedLimit && (
               <div className="text-center mt-2">
                 <p className="text-sm text-muted-foreground">
-                  Message limit reached ({messageCount}/{maxMessages}) • Your
-                  chat is saved locally •
+                  Message limit reached ({messageCount}/{maxMessages})
                   <Button
                     variant="link"
                     className="p-0 h-auto text-sm ml-1"
