@@ -2,17 +2,21 @@
 
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/context/auth-context";
+import { useAnonymousChat } from "@/context/anonymous-chat-context";
+
 import { ChatMessageItem } from "@/components/chat-message";
+import { ScrollToBottom } from "@/components/scroll-to-bottom";
 import { TypingAnimation } from "@/components/typing-animation";
 import { MobileChatInput } from "@/components/mobile-chat-input";
-import { ScrollToBottom } from "@/components/scroll-to-bottom";
 import { MessageLimitBanner } from "@/components/message-limit-banner";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useAnonymousChat } from "@/context/anonymous-chat-context";
-import { useAuth } from "@/context/auth-context";
-import { useRouter, useSearchParams } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 export function AnonymousChatCanvas() {
   const [inputValue, setInputValue] = useState("");
@@ -36,33 +40,28 @@ export function AnonymousChatCanvas() {
   } = useAnonymousChat();
 
   // Handle URL parameter on mount - only process once
+  const processedRef = useRef(false);
   useEffect(() => {
-    const qParam = searchParams.get("q");
-    if (qParam && !anonymousChat && !user && !hasProcessedQuery) {
-      console.log("Processing query parameter:", qParam);
-      setHasProcessedQuery(true);
+    if (processedRef.current) return;
 
-      // Use the startAnonymousChat function which handles the initial message properly
+    const qParam = searchParams.get("q");
+    if (qParam && !anonymousChat && !user) {
+      processedRef.current = true; // ✅ lock
+
+      console.log("Processing query parameter:", qParam);
+
       startAnonymousChat(qParam)
-        .then(() => {
-          console.log("Anonymous chat started with query parameter");
-        })
-        .catch((error) => {
-          console.error("Error starting anonymous chat:", error);
-        });
+        .then(() => console.log("Anonymous chat started with query parameter"))
+        .catch((error) =>
+          console.error("Error starting anonymous chat:", error)
+        );
 
       // Clean up URL parameter
       const url = new URL(window.location.href);
       url.searchParams.delete("q");
       window.history.replaceState({}, "", url.toString());
     }
-  }, [
-    searchParams,
-    anonymousChat,
-    user,
-    startAnonymousChat,
-    hasProcessedQuery,
-  ]);
+  }, [searchParams, anonymousChat, user, startAnonymousChat]);
 
   // Redirect logged-in users to main chat (conversion will be handled by context)
   useEffect(() => {
@@ -126,9 +125,6 @@ export function AnonymousChatCanvas() {
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || !canSendMessage) return;
-
-    console.log("handleSendMessage called with:", content);
-
     // Use the unified sendMessage function
     await sendMessage(content);
   };
