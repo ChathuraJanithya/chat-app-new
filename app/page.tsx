@@ -27,40 +27,42 @@ function ChatApp() {
   const { user, loading: authLoading, databaseReady } = useAuth();
   const searchParams = useSearchParams();
 
-  // Check for anonymous chat parameter
   useEffect(() => {
+    // Don't do anything while authentication is loading
+    if (authLoading) return;
+
     const qParam = searchParams.get("q");
+
+    // Priority 1: Handle query parameter (anonymous chat)
     if (qParam && !user) {
-      // Redirect to anonymous chat with the query parameter
       router.push(`/anonymous-chat?q=${encodeURIComponent(qParam)}`);
       return;
     }
-  }, [searchParams, user, router]);
 
-  // Handle routing after authentication and chats are loaded
-  useEffect(() => {
-    if (!authLoading && !chatsLoading && user) {
+    // Priority 2: Handle authenticated user routing
+    if (user && !chatsLoading) {
       if (chats.length === 0) {
-        // No chats available, redirect to /chat
         router.push("/chat");
+        return;
       } else if (!currentChat) {
-        // Has chats but no current chat selected, redirect to the first chat
         router.push(`/chat/${chats[0].id}`);
+        return;
       }
     }
-  }, [chats, currentChat, router, user, authLoading, chatsLoading]);
 
-  // Redirect to anonymous chat if not authenticated only having query parameter else to login
-  useEffect(() => {
-    if (!authLoading && !user) {
-      const qParam = searchParams.get("q");
-      if (qParam) {
-        router.push(`/anonymous-chat?q=${encodeURIComponent(qParam)}`);
-      } else {
-        router.push("/login");
-      }
+    // Priority 3: Redirect to login (only if no query param and not authenticated)
+    if (!user && !qParam) {
+      router.push("/login");
     }
-  }, [user, authLoading, router, searchParams]);
+  }, [
+    authLoading,
+    searchParams,
+    user,
+    chatsLoading,
+    chats,
+    currentChat,
+    router,
+  ]);
 
   // Add swipe gestures for mobile
   const { handlers } = useSwipe({
