@@ -1,10 +1,13 @@
 "use client";
 
 import type React from "react";
+
 import { createContext, useContext, useState, useEffect } from "react";
-import type { ChatMessage, ChatSession } from "@/types/chat";
+
 import { useAuth } from "@/context/auth-context";
 import { useChat } from "@/context/chat-context";
+import type { ChatMessage, ChatSession } from "@/types/chat";
+
 import { ChatService } from "@/lib/chat-service";
 
 interface AnonymousChatContextProps {
@@ -41,7 +44,7 @@ export function AnonymousChatProvider({
   const [isTyping, setIsTyping] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
-  const maxMessages = 5;
+  const maxMessages = 10;
   const { user } = useAuth();
   const { createNewChat, addMessageToChat } = useChat();
   const chatService = ChatService.getInstance();
@@ -54,8 +57,11 @@ export function AnonymousChatProvider({
       const savedChat = loadFromLocalStorage();
       if (savedChat) {
         setAnonymousChat(savedChat);
-        setMessageCount(savedChat.messages.length);
-        setHasReachedLimit(savedChat.messages.length >= maxMessages);
+        const userMessages = savedChat.messages.filter(
+          (msg) => msg.role === "user"
+        );
+        setMessageCount(userMessages.length);
+        setHasReachedLimit(userMessages.length >= maxMessages);
       }
     }
   }, []);
@@ -154,12 +160,8 @@ export function AnonymousChatProvider({
 
       // Set the chat state first
       setAnonymousChat(newChat);
-      setMessageCount(1);
+      setMessageCount(newChat.messages.length);
       setHasReachedLimit(false);
-
-      console.log(
-        "Chat created with initial message, generating bot response..."
-      );
 
       // Generate bot response with a small delay to ensure state is updated
       setTimeout(async () => {
@@ -265,14 +267,14 @@ export function AnonymousChatProvider({
       );
 
       // ✅ Add remaining message count info
-      const remainingMessages = maxMessages - currentMessageCount - 1;
+      /*  const remainingMessages = maxMessages - currentMessageCount - 1;
       if (remainingMessages > 0) {
         botResponse += `\n\n*Anonymous chat: ${remainingMessages} message${
           remainingMessages !== 1 ? "s" : ""
         } remaining. [Sign up](/signup) for unlimited chatting.*`;
       } else {
         botResponse += `\n\n*You've reached the message limit for anonymous chat. [Sign up](/signup) or [log in](/login) to continue this conversation.*`;
-      }
+      } */
 
       // ✅ Replace placeholder with final content
       setAnonymousChat((prev) => {

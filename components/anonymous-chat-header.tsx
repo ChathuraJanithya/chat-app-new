@@ -40,12 +40,12 @@ export function AnonymousChatHeader() {
             >
               {messageCount}/{maxMessages} messages
             </span>
-            {anonymousChat.messages.length > 0 && (
+            {/*  {anonymousChat.messages.length > 0 && (
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Save className="h-3 w-3" />
                 Saved locally
               </span>
-            )}
+            )} */}
           </div>
         )}
       </div>
