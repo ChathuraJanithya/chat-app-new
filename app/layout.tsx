@@ -1,7 +1,10 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import "./globals.css";
+
 import { AuthProvider } from "@/context/auth-context";
 import { ChatProvider } from "@/context/chat-context";
 import { QueryProvider } from "@/components/query-provider";
@@ -79,7 +82,10 @@ export default function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <ChatProvider>
-                <AnonymousChatProvider>{children}</AnonymousChatProvider>
+                <AnonymousChatProvider>
+                  <SpeedInsights />
+                  {children}
+                </AnonymousChatProvider>
               </ChatProvider>
             </AuthProvider>
           </QueryProvider>
