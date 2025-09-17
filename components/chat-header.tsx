@@ -39,8 +39,8 @@ export function ChatHeader() {
         <Link
           href="https://visitsrilanka.ai/"
           className={clsx(
-            "flex items-center gap-2 font-semibold",
-            isMobile && isOpen && "invisible"
+            "flex items-center gap-2 font-semibold transition-opacity duration-300",
+            isMobile && isOpen ? "opacity-0" : "opacity-100"
           )}
           target="_blank"
         >
@@ -55,8 +55,8 @@ export function ChatHeader() {
       </div>
       <div
         className={clsx(
-          "flex items-center gap-2",
-          isMobile && isOpen && "invisible"
+          "flex items-center gap-2 transition-opacity duration-300",
+          isMobile && isOpen ? "opacity-0" : "opacity-100"
         )}
       >
         <ThemeToggle />
