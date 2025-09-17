@@ -1,13 +1,16 @@
 "use client";
 
-import { ChevronDown, Lock, Settings, LogIn, LogOut, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useAuth } from "@/context/auth-context";
+import clsx from "clsx";
 import Link from "next/link";
 import Image from "next/image";
+
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/context/auth-context";
+import { SidebarTrigger, useSidebarContext } from "@/components/ui/sidebar";
+
+import { ThemeToggle } from "@/components/theme-toggle";
+
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { ChevronDown, Lock, Settings, LogIn, LogOut, User } from "lucide-react";
+
 export function ChatHeader() {
   const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
@@ -25,13 +30,18 @@ export function ChatHeader() {
     await signOut();
   };
 
+  const { isOpen } = useSidebarContext();
+
   return (
     <header className="flex h-14 items-center justify-between border-b px-4">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
         <Link
           href="https://visitsrilanka.ai/"
-          className="flex items-center gap-2 font-semibold"
+          className={clsx(
+            "flex items-center gap-2 font-semibold",
+            isMobile && isOpen && "invisible"
+          )}
           target="_blank"
         >
           <Image
@@ -43,7 +53,12 @@ export function ChatHeader() {
           <span>Visit Sri Lanka.ai</span>
         </Link>
       </div>
-      <div className="flex items-center gap-2">
+      <div
+        className={clsx(
+          "flex items-center gap-2",
+          isMobile && isOpen && "invisible"
+        )}
+      >
         <ThemeToggle />
 
         {user ? (
