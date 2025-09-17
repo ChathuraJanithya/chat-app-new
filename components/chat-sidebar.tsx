@@ -1,13 +1,14 @@
 "use client";
-import {
-  ChevronDown,
-  Plus,
-  MessageSquare,
-  Trash2,
-  AlertCircle,
-} from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+
+import clsx from "clsx";
+import { useRouter } from "next/navigation";
+import { formatDistanceToNow } from "date-fns";
+
+import { useChat } from "@/context/chat-context";
+import { useAuth } from "@/context/auth-context";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -32,12 +33,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useChat } from "@/context/chat-context";
-import { useAuth } from "@/context/auth-context";
-import { useRouter } from "next/navigation";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { formatDistanceToNow } from "date-fns";
-import clsx from "clsx";
+
+import {
+  ChevronDown,
+  Plus,
+  MessageSquare,
+  Trash2,
+  AlertCircle,
+} from "lucide-react";
 
 export function ChatSidebar() {
   const { chats, currentChat, createNewChat, deleteChat, loading } = useChat();
