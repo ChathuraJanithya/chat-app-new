@@ -129,7 +129,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/95">
+    <div className="flex min-h-dvh flex-col bg-gradient-to-b from-background to-background/95">
       <header className="flex h-14 items-center justify-between border-b px-4 lg:px-6">
         <Link
           href="https://visitsrilanka.ai/"

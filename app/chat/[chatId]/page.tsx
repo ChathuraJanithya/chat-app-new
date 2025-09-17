@@ -148,7 +148,7 @@ function ChatPage() {
 
   return (
     <div
-      className="flex h-screen w-full overflow-hidden bg-gradient-to-b from-background to-background/95"
+      className="flex h-dvh w-full overflow-hidden bg-gradient-to-b from-background to-background/95"
       {...handlers}
     >
       <ChatSidebar />

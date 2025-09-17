@@ -6,12 +6,14 @@ import { useState, useRef, useEffect } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
+
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+
 import { Button } from "@/components/ui/button";
 import { useChat } from "@/context/chat-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Textarea } from "@/components/ui/textarea";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChatMessageItem } from "@/components/chat-message";
 import { ScrollToBottom } from "@/components/scroll-to-bottom";
 import { TypingAnimation } from "@/components/typing-animation";

@@ -15,7 +15,7 @@ function AnonymousChatPage() {
   }, []);
 
   return (
-    <div className="flex h-screen w-full hide-scrollbar overflow-hidden bg-gradient-to-b from-background to-background/95 flex-col">
+    <div className="flex h-dvh w-full hide-scrollbar overflow-hidden bg-gradient-to-b from-background to-background/95 flex-col">
       <AnonymousChatHeader />
       <AnonymousChatCanvas />
     </div>
