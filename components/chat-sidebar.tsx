@@ -209,6 +209,7 @@ export function ChatSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={currentChat?.id === chat.id}
+                    onClick={() => handleSelectChat(chat.id)}
                   >
                     <Button
                       variant="ghost"
@@ -218,7 +219,6 @@ export function ChatSidebar() {
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"
                           : "text-muted-foreground"
                       )}
-                      onClick={() => handleSelectChat(chat.id)}
                     >
                       <MessageSquare className="h-4 w-4 shrink-0" />
                       <div className="flex flex-col items-start text-start overflow-hidden">
