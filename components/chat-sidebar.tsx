@@ -205,11 +205,14 @@ export function ChatSidebar() {
           ) : (
             <SidebarMenu>
               {chats.map((chat) => (
-                <SidebarMenuItem key={chat.id} className="relative group">
+                <SidebarMenuItem
+                  key={chat.id}
+                  className="relative group"
+                  onClick={() => handleSelectChat(chat.id)}
+                >
                   <SidebarMenuButton
                     asChild
                     isActive={currentChat?.id === chat.id}
-                    onClick={() => handleSelectChat(chat.id)}
                   >
                     <Button
                       variant="ghost"
@@ -235,9 +238,11 @@ export function ChatSidebar() {
                     variant="ghost"
                     size="icon"
                     className="absolute right-3 top-1/2 -translate-y-1/2 hover:bg-transparent h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) =>
-                      handleDeleteClick({ id: chat.id, title: chat.title }, e)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleDeleteClick({ id: chat.id, title: chat.title }, e);
+                    }}
                     disabled={isDeleting === chat.id}
                   >
                     {isDeleting === chat.id ? (
