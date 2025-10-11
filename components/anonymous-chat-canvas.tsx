@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/auth-context";
@@ -17,16 +17,21 @@ import { MessageLimitBanner } from "@/components/message-limit-banner";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { generateChatId } from "@/data/chat-data";
 
 export function AnonymousChatCanvas() {
+  const searchParams = useSearchParams();
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const desktopInputRef = useRef<HTMLTextAreaElement>(null);
   const isMobile = useIsMobile();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [hasProcessedQuery, setHasProcessedQuery] = useState(false);
+
+  // Get URL parameters
+  const qParam = searchParams.get("q");
+  const { anonymousId } = useParams();
 
   const {
     anonymousChat,
@@ -37,20 +42,22 @@ export function AnonymousChatCanvas() {
     hasReachedLimit,
     startAnonymousChat,
     sendMessage,
+    currentChat,
+    loadChatsFromLocalStorage,
+    setCurrentChat,
+    setAnonymousChat,
   } = useAnonymousChat();
 
   // Handle URL parameter on mount - only process once
   const processedRef = useRef(false);
   useEffect(() => {
     if (processedRef.current) return;
-
-    const qParam = searchParams.get("q");
-    if (qParam && !anonymousChat && !user) {
+    if (qParam && !user) {
       processedRef.current = true; // ✅ lock
 
       console.log("Processing query parameter:", qParam);
 
-      startAnonymousChat(qParam)
+      startAnonymousChat(qParam, anonymousId as string)
         .then(() => console.log("Anonymous chat started with query parameter"))
         .catch((error) =>
           console.error("Error starting anonymous chat:", error)
@@ -61,22 +68,29 @@ export function AnonymousChatCanvas() {
       url.searchParams.delete("q");
       window.history.replaceState({}, "", url.toString());
     }
-  }, [searchParams, anonymousChat, user, startAnonymousChat]);
-
-  // Redirect logged-in users to main chat (conversion will be handled by context)
-  useEffect(() => {
-    if (user) {
-      // Small delay to allow conversion to complete
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
-    }
-  }, [user, router]);
+  }, [searchParams, user, startAnonymousChat]);
 
   // Scroll to bottom when messages change or when typing starts/stops
-  useEffect(() => {
+  /*   useEffect(() => {
     scrollToBottom();
-  }, [anonymousChat?.messages, isTyping]);
+  }, [anonymousChat?.messages, isTyping]); */
+
+  // Load existing chat if anonymousId is present and no query param
+  useEffect(() => {
+    if (qParam) return; // Already handled in the other useEffect
+    if (!qParam && !user && anonymousId) {
+      // Load existing chats from local storage
+      const existingChats = loadChatsFromLocalStorage();
+      const current = existingChats?.find((chat) => chat.id === anonymousId);
+      console.log("Loading existing current chat:", current);
+      if (!current) {
+        router.replace("/anonymous-chat");
+        return;
+      }
+      setAnonymousChat(existingChats || []);
+      setCurrentChat(current);
+    }
+  }, [anonymousId, qParam, user]);
 
   // Auto-focus input when bot finishes typing (only if can still send messages)
   useEffect(() => {
@@ -137,8 +151,15 @@ export function AnonymousChatCanvas() {
     }
   };
 
+  const handleSuggestionMessage = (suggestion: string) => {
+    const tempId = generateChatId();
+    router.replace(
+      `/anonymous-chat/${tempId}?q=${encodeURIComponent(suggestion)}`
+    );
+  };
+
   // Show welcome screen if no chat exists
-  if (!anonymousChat) {
+  if (anonymousChat.length === 0) {
     return (
       <div className="flex flex-1 flex-col hide-scrollbar h-[calc(100vh-3.5rem)] relative">
         <div className="flex-1 overflow-auto hide-scrollbar p-4 md:px-8 pb-2 scroll-smooth">
@@ -147,7 +168,7 @@ export function AnonymousChatCanvas() {
               Welcome to Anonymous Chat
             </h2>
             <p className="text-muted-foreground mt-2 mb-1">
-              Try our AI assistant with up to {maxMessages} messages
+              Try our AI assistant
             </p>
 
             <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 w-full max-w-2xl">
@@ -156,7 +177,7 @@ export function AnonymousChatCanvas() {
                   key={index}
                   variant="outline"
                   className="h-auto justify-start p-4 text-left bg-transparent"
-                  onClick={() => handleSendMessage(suggestion.title)}
+                  onClick={() => handleSuggestionMessage(suggestion.title)}
                 >
                   <div>
                     <p className="font-medium">{suggestion.title}</p>
@@ -182,11 +203,11 @@ export function AnonymousChatCanvas() {
         <MessageLimitBanner />
 
         <div className="mx-auto max-w-3xl space-y-4 mb-4">
-          {anonymousChat.messages.map((message, index) => (
+          {currentChat?.messages.map((message, index) => (
             <ChatMessageItem
               key={index}
               message={message}
-              isLastMessage={index === anonymousChat.messages.length - 1}
+              isLastMessage={index === currentChat?.messages.length - 1}
             />
           ))}
 

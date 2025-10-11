@@ -54,7 +54,7 @@ export function AnonymousChatHeader() {
         <Button variant="outline" size="sm" asChild>
           <Link href="/login">
             <LogIn className="mr-2 h-4 w-4" />
-            <span>Login to Save</span>
+            <span>Login</span>
           </Link>
         </Button>
       </div>
