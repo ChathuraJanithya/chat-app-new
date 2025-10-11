@@ -149,12 +149,6 @@ export function AnonymousChatCanvas() {
             <p className="text-muted-foreground mt-2 mb-1">
               Try our AI assistant with up to {maxMessages} messages
             </p>
-            <p className="text-sm text-muted-foreground mb-8">
-              No login required • Chat saved locally •
-              <Button variant="link" className="p-0 h-auto text-sm" asChild>
-                <a href="/login"> Sign in to save permanently</a>
-              </Button>
-            </p>
 
             <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 w-full max-w-2xl">
               {suggestions.map((suggestion, index) => (
