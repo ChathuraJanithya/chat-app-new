@@ -2,10 +2,11 @@
 
 import type React from "react";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 
 import { useAuth } from "@/context/auth-context";
 import { useChat } from "@/context/chat-context";
+
 import type { ChatMessage, ChatSession } from "@/types/chat";
 
 import { ChatService } from "@/lib/chat-service";
@@ -67,25 +68,15 @@ export function AnonymousChatProvider({
 
   const canSendMessage = messageCount < maxMessages;
 
-  // Load from localStorage on mount
-  /*   useEffect(() => {
-    if (!user) {
-      const savedChat = loadFromLocalStorage();
-      if (savedChat) {
-        setAnonymousChat([savedChat]);
-        const userMessages = savedChat.messages.filter(
-          (msg) => msg.role === "user"
-        );
-        setMessageCount(userMessages.length);
-        setHasReachedLimit(userMessages.length >= maxMessages);
-      }
-    }
-  }, []); */
-
   //load chats from localStorage function
   const loadChatsFromLocalStorage = () => {
     const savedChats = localStorage.getItem(ANONYMOUS_CHAT_KEY as string);
     return savedChats ? JSON.parse(savedChats) : null;
+  };
+
+  const getChatById = (chatId: string): ChatSession | null => {
+    const chat = anonymousChat.find((c) => c.id === chatId);
+    return chat || null;
   };
 
   //newChat validation
@@ -337,9 +328,11 @@ export function AnonymousChatProvider({
 
   const clearAnonymousChat = () => {
     if (anonymousChat) {
-      chatService.clearConversation(anonymousChat.id);
+      anonymousChat.forEach((chat) => {
+        chatService.clearConversation(chat.id);
+      });
     }
-    setAnonymousChat(null);
+    setAnonymousChat([]);
     setMessageCount(0);
     setHasReachedLimit(false);
 
@@ -353,7 +346,7 @@ export function AnonymousChatProvider({
   };
 
   const convertToUserChat = async (): Promise<ChatSession | null> => {
-    if (!user || !anonymousChat || anonymousChat.messages.length === 0) {
+    if (!user || !anonymousChat || anonymousChat.length === 0) {
       return null;
     }
 
@@ -361,24 +354,23 @@ export function AnonymousChatProvider({
       //  console.log("Converting anonymous chat to user chat...");
 
       // Create a new chat in the database
-      const newChat = await createNewChat();
-      if (!newChat) {
-        console.error("Failed to create new chat for conversion");
-        return null;
+      let newChat: ChatSession | null = null;
+      for (const chat of anonymousChat) {
+        const createdChat = await createNewChat();
+        if (!createdChat) {
+          console.error("Failed to create new chat for conversion");
+          continue;
+        }
+        // Add all messages from this anonymous chat to the new chat
+        for (const message of chat.messages) {
+          await addMessageToChat(createdChat.id, {
+            content: message.content,
+            role: message.role,
+          });
+        }
+        // Return the last created chat (or you can collect all if needed)
+        newChat = createdChat;
       }
-
-      // Add all messages from anonymous chat to the new chat
-      for (const message of anonymousChat.messages) {
-        await addMessageToChat(newChat.id, {
-          content: message.content,
-          role: message.role,
-        });
-      }
-
-      console.log(
-        "Anonymous chat successfully converted to user chat:",
-        newChat.id
-      );
 
       // Clear the anonymous chat
       clearAnonymousChat();
