@@ -259,32 +259,12 @@ export function AnonymousChatProvider({
             const updatedMessages = prev.messages.map((msg) =>
               msg.id === placeholderId ? { ...msg, content: botResponse } : msg
             );
-            return { ...prev, messages: updatedMessages };
+            const chat = { ...prev, messages: updatedMessages };
+            updatedChat = chat;
+            return chat;
           });
         }
       );
-
-      // ✅ Replace placeholder with final content
-      let updatedChat: ChatSession | null = null;
-      setCurrentChat((prev) => {
-        if (!prev) return null;
-        const updatedMessages = prev.messages.map((msg) =>
-          msg.id === placeholderId ? { ...msg, content: botResponse } : msg
-        );
-        updatedChat = { ...prev, messages: updatedMessages };
-        return updatedChat;
-      });
-
-      if (updatedChat) {
-        updateLocalStorage(updatedChat);
-      }
-
-      // ✅ Update message count
-      /*       const newCount = currentMessageCount + 1;
-      setMessageCount(newCount);
-      if (newCount >= maxMessages) {
-        setHasReachedLimit(true);
-      } */
     } catch (error) {
       console.error("Error generating anonymous bot response:", error);
 

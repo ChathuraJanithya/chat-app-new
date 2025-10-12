@@ -16,8 +16,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useSwipe } from "@/hooks/use-swipe";
 import { AnonymousChatSidebar } from "@/components/anonymous-chat-sidebar";
 
+import { useRouter } from "next/navigation";
+
 function AnonymousChatPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const { anonymousId } = useParams();
   const searchParams = useSearchParams();
 
@@ -46,6 +49,9 @@ function AnonymousChatPage() {
       if (current) {
         setCurrentChat(current);
       }
+    }
+    if (!chats && anonymousId) {
+      router.push("/anonymous-chat");
     }
   }, []);
 
@@ -93,8 +99,6 @@ function AnonymousChatPage() {
       }
     },
   });
-
-  console.log("RENDERING ANONYMOUS CHAT PAGE :", anonymousChat);
 
   return (
     <div

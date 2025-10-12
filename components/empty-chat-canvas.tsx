@@ -44,7 +44,6 @@ export function EmptyChatCanvas({ onSendMessage }: EmptyChatCanvasProps) {
 
   const handleSendMessage = (content: string) => {
     if (!content.trim()) return;
-    console.log("EmptyChatCanvas: Sending message:", content.trim());
     onSendMessage(content.trim());
   };
 
