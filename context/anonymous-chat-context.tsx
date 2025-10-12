@@ -4,9 +4,6 @@ import type React from "react";
 
 import { createContext, useContext, useState } from "react";
 
-import { useAuth } from "@/context/auth-context";
-import { useChat } from "@/context/chat-context";
-
 import type { ChatMessage, ChatSession } from "@/types/chat";
 
 import { ChatService } from "@/lib/chat-service";
@@ -199,13 +196,6 @@ export function AnonymousChatProvider({
     if (updatedChat) {
       updateLocalStorage(updatedChat);
     }
-
-    //  const newCount = messageCount + 1;
-    //  setMessageCount(newCount);
-
-    /*  if (newCount >= maxMessages) {
-      setHasReachedLimit(true);
-    } */
   };
 
   // Internal function that doesn't depend on state
@@ -318,62 +308,6 @@ export function AnonymousChatProvider({
       generateBotResponse(content);
     }, 100);
   };
-
-  /*  const clearAnonymousChat = () => {
-    if (anonymousChat) {
-      anonymousChat.forEach((chat) => {
-        chatService.clearConversation(chat.id);
-      });
-    }
-    setAnonymousChat([]);
-    setMessageCount(0);
-    setHasReachedLimit(false);
-
-    // Clear from localStorage
-    try {
-      localStorage.removeItem(ANONYMOUS_CHAT_KEY as string);
-      // console.log("Anonymous chat cleared from localStorage");
-    } catch (error) {
-      console.error("Error clearing localStorage:", error);
-    }
-  };
-
-  const convertToUserChat = async (): Promise<ChatSession | null> => {
-    if (!user || !anonymousChat || anonymousChat.length === 0) {
-      return null;
-    }
-
-    try {
-      //  console.log("Converting anonymous chat to user chat...");
-
-      // Create a new chat in the database
-      let newChat: ChatSession | null = null;
-      for (const chat of anonymousChat) {
-        const createdChat = await createNewChat();
-        if (!createdChat) {
-          console.error("Failed to create new chat for conversion");
-          continue;
-        }
-        // Add all messages from this anonymous chat to the new chat
-        for (const message of chat.messages) {
-          await addMessageToChat(createdChat.id, {
-            content: message.content,
-            role: message.role,
-          });
-        }
-        // Return the last created chat (or you can collect all if needed)
-        newChat = createdChat;
-      }
-
-      // Clear the anonymous chat
-      clearAnonymousChat();
-
-      return newChat;
-    } catch (error) {
-      console.error("Error converting anonymous chat:", error);
-      return null;
-    }
-  }; */
 
   return (
     <AnonymousChatContext.Provider
