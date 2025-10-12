@@ -29,8 +29,6 @@ interface AnonymousChatContextProps {
   sendMessage: (content: string) => Promise<void>;
   clearAnonymousChat: () => void;
   convertToUserChat: () => Promise<ChatSession | null>;
-  saveToLocalStorage: () => void;
-  loadFromLocalStorage: () => ChatSession | null;
   //new states
   isLoadingChats: boolean;
   setIsLoadingChats: React.Dispatch<React.SetStateAction<boolean>>;
@@ -103,13 +101,6 @@ export function AnonymousChatProvider({
     }
   }, [user, anonymousChat]); */
 
-  // Save to localStorage whenever chat changes
-  /*   useEffect(() => {
-    if (anonymousChat && !user) {
-      saveToLocalStorage();
-    }
-  }, [anonymousChat, user]); */
-
   const updateLocalStorage = (chat: ChatSession | null) => {
     try {
       console.log("Updating anonymous chat in localStorage...");
@@ -137,45 +128,6 @@ export function AnonymousChatProvider({
     } catch (error) {
       console.error("Error updating localStorage:", error);
     }
-  };
-
-  const saveToLocalStorage = () => {
-    if (anonymousChat) {
-      try {
-        const chatData = {
-          ...anonymousChat,
-          savedAt: new Date().toISOString(),
-        };
-        localStorage.setItem(
-          ANONYMOUS_CHAT_KEY as string,
-          JSON.stringify(chatData)
-        );
-        // console.log("Anonymous chat saved to localStorage");
-      } catch (error) {
-        console.error("Error saving to localStorage:", error);
-      }
-    }
-  };
-
-  const loadFromLocalStorage = (): ChatSession[] | null => {
-    try {
-      const saved = localStorage.getItem(ANONYMOUS_CHAT_KEY as string);
-      if (saved) {
-        const chatDataArr = JSON.parse(saved);
-        // Convert date strings back to Date objects for each chat
-        return chatDataArr.map((chatData: any) => ({
-          ...chatData,
-          createdAt: new Date(chatData.createdAt),
-          messages: chatData.messages.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp),
-          })),
-        }));
-      }
-    } catch (error) {
-      console.error("Error loading from localStorage:", error);
-    }
-    return null;
   };
 
   const startAnonymousChat = async (
@@ -453,8 +405,6 @@ export function AnonymousChatProvider({
         sendMessage,
         clearAnonymousChat,
         convertToUserChat,
-        saveToLocalStorage,
-        loadFromLocalStorage,
         isLoadingChats,
         setIsLoadingChats,
         loadChatsFromLocalStorage,
