@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import { useRouter, useSearchParams, useParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 
 import { useAuth } from "@/context/auth-context";
 import { useAnonymousChat } from "@/context/anonymous-chat-context";
@@ -11,21 +11,43 @@ import { AnonymousChatProvider } from "@/context/anonymous-chat-context";
 import { AnonymousChatHeader } from "@/components/anonymous-chat-header";
 import { AnonymousChatCanvas } from "@/components/anonymous-chat-canvas";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useSidebarContext } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useSwipe } from "@/hooks/use-swipe";
+import { AnonymousChatSidebar } from "@/components/anonymous-chat-sidebar";
 
 function AnonymousChatPage() {
-  const router = useRouter();
   const { user } = useAuth();
   const { anonymousId } = useParams();
   const searchParams = useSearchParams();
 
+  const isMobile = useIsMobile();
+  const { isOpen, setIsOpen } = useSidebarContext();
+
   const qParam = searchParams.get("q");
+  //check qParam new is true
+  const isNew = searchParams.get("new") === "true";
 
   const {
-    setCurrentChat,
-    setAnonymousChat,
     startAnonymousChat,
+    anonymousChat,
     loadChatsFromLocalStorage,
+    setAnonymousChat,
+    setCurrentChat,
   } = useAnonymousChat();
+
+  //load chats from local storage on mount
+  useEffect(() => {
+    const chats = loadChatsFromLocalStorage();
+    if (chats) {
+      setAnonymousChat(chats);
+      //filter chat with anonymousId and set current chat
+      const current = chats.find((chat) => chat.id === anonymousId);
+      if (current) {
+        setCurrentChat(current);
+      }
+    }
+  }, []);
 
   // Handle URL parameter on mount - only process once
   const processedRef = useRef(false);
@@ -45,42 +67,55 @@ function AnonymousChatPage() {
       url.searchParams.delete("q");
       window.history.replaceState({}, "", url.toString());
     }
-  }, [searchParams, user, startAnonymousChat]);
+  }, [searchParams, user, anonymousId]);
 
-  // Load existing chat if anonymousId is present and no query param
-  useEffect(() => {
+  /*   useEffect(() => {
     if (qParam) {
-      console.log("Query param present, skipping load of existing chat");
       return;
     }
-    if (!qParam && !user && anonymousId) {
-      // Load existing chats from local storage
-      const existingChats = loadChatsFromLocalStorage();
-      const current = existingChats?.find((chat) => chat.id === anonymousId);
-      console.log("Loading existing current chat:", current);
-      if (!current) {
-        router.replace("/anonymous-chat");
-        return;
-      }
-      setAnonymousChat(existingChats || []);
-      setCurrentChat(current);
+    if (isNew) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("new");
+      window.history.replaceState({}, "", url.toString());
     }
-  }, [anonymousId, qParam, user]);
+  }, [anonymousId, qParam, isNew]); */
+
+  // Add swipe gestures for mobile
+  const { handlers } = useSwipe({
+    onSwipeRight: () => {
+      if (isMobile && !isOpen) {
+        setIsOpen(true);
+      }
+    },
+    onSwipeLeft: () => {
+      if (isMobile && isOpen) {
+        setIsOpen(false);
+      }
+    },
+  });
+
+  console.log("RENDERING ANONYMOUS CHAT PAGE :", anonymousChat);
 
   return (
-    <div className="flex h-dvh w-full hide-scrollbar overflow-hidden bg-gradient-to-b from-background to-background/95 flex-col">
-      <AnonymousChatHeader />
-      <AnonymousChatCanvas />
+    <div
+      className="flex h-screen w-full overflow-hidden bg-gradient-to-b from-background to-background/95"
+      {...handlers}
+    >
+      <AnonymousChatSidebar />
+      <div className="flex flex-1 flex-col">
+        <AnonymousChatHeader />
+        <AnonymousChatCanvas />
+      </div>
     </div>
   );
 }
 
 export default function AnonymousChatPageWithProvider() {
   return (
-    <AnonymousChatProvider>
-      <SidebarProvider defaultIsOpen={false}>
+    <SidebarProvider defaultIsOpen={false}>
+      <AnonymousChatProvider>
         <AnonymousChatPage />
-      </SidebarProvider>
-    </AnonymousChatProvider>
+      </AnonymousChatProvider>
+    </SidebarProvider>
   );
 }

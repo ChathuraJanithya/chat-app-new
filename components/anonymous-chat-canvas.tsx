@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react";
 import { useAnonymousChat } from "@/context/anonymous-chat-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import { useParams } from "next/navigation";
+
 import { ChatMessageItem } from "@/components/chat-message";
 import { ScrollToBottom } from "@/components/scroll-to-bottom";
 import { TypingAnimation } from "@/components/typing-animation";
@@ -17,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export function AnonymousChatCanvas() {
   const isMobile = useIsMobile();
+  const { anonymousId } = useParams();
 
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);

@@ -6,7 +6,6 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 
-import { useChat } from "@/context/chat-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Button } from "@/components/ui/button";
@@ -23,9 +22,15 @@ import {
 
 import { Plus, AlertCircle, MessageSquare } from "lucide-react";
 import { useAnonymousChat } from "@/context/anonymous-chat-context";
+import { Router } from "next/router";
 
 export function AnonymousChatSidebar() {
-  const { anonymousChat, currentChat } = useAnonymousChat();
+  const {
+    anonymousChat,
+    currentChat,
+    createNewAnonymousChat,
+    chatLimitExceeded,
+  } = useAnonymousChat();
   const router = useRouter();
   const { setIsOpen, isOpen } = useSidebarContext();
   const isMobile = useIsMobile();
@@ -34,15 +39,24 @@ export function AnonymousChatSidebar() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSelectChat = (chatId: string) => {
-    router.push(`/anonymous-chat/${chatId}`);
-
+    router.replace(`/anonymous-chat/${chatId}`);
     // Close sidebar on mobile after selection
     if (isMobile) {
       setIsOpen(false);
     }
   };
 
-  console.log("AnonymousChatSidebar: Rendered");
+  const handleNewChat = async () => {
+    setError(null);
+    if (chatLimitExceeded) {
+      setError("Chat limit exceeded. Please Login to create more chats.");
+      return;
+    }
+    const newChat = createNewAnonymousChat();
+    if (newChat) {
+      router.push(`/anonymous-chat/${newChat.id}`);
+    }
+  };
 
   return (
     <Sidebar>
@@ -57,8 +71,8 @@ export function AnonymousChatSidebar() {
           <Button
             variant="outline"
             className="w-full justify-start gap-2 shadow-sm bg-transparent"
-            //   onClick={handleNewChat}
-            disabled={isCreating}
+            onClick={handleNewChat}
+            disabled={chatLimitExceeded}
           >
             <Plus className="h-4 w-4" />
             <span>{isCreating ? "Creating..." : "New chat"}</span>

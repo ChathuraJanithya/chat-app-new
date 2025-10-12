@@ -11,10 +11,10 @@ import { SidebarProvider, useSidebarContext } from "@/components/ui/sidebar";
 import { useSwipe } from "@/hooks/use-swipe";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { AnonymousChatHeader } from "@/components/anonymous-chat-header";
-import { EmptyAnonymousChatCanvas } from "@/components/anonymous-empty-chat-canvas";
-import { AnonymousChatSidebar } from "@/components/anonymous-chat-sidebar";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AnonymousChatHeader } from "@/components/anonymous-chat-header";
+import { AnonymousChatSidebar } from "@/components/anonymous-chat-sidebar";
+import { EmptyAnonymousChatCanvas } from "@/components/anonymous-empty-chat-canvas";
 
 import { generateChatId } from "@/data/chat-data";
 
@@ -26,17 +26,20 @@ function AnonymousChatPage() {
 
   const searchParams = useSearchParams();
 
-  const { loadChatsFromLocalStorage, isUserCanSendMessage, setAnonymousChat } =
-    useAnonymousChat();
+  const {
+    isUserCanCreateNewChat,
+    setAnonymousChat,
+    loadChatsFromLocalStorage,
+  } = useAnonymousChat();
 
   useEffect(() => {
     if (!user) {
       const existingChats = loadChatsFromLocalStorage();
       if (existingChats) {
-        setAnonymousChat(existingChats);
+        // setAnonymousChat(existingChats);
       }
       const qParam = searchParams.get("q");
-      const validated = isUserCanSendMessage(existingChats || []);
+      const validated = isUserCanCreateNewChat(existingChats || []);
       if (!validated) {
         alert(
           "You have reached the maximum number of anonymous chats allowed. Please log in to continue."
@@ -82,10 +85,10 @@ function AnonymousChatPage() {
 
 export default function AnonymousChatPageWithProvider() {
   return (
-    <AnonymousChatProvider>
-      <SidebarProvider defaultIsOpen={false}>
+    <SidebarProvider defaultIsOpen={false}>
+      <AnonymousChatProvider>
         <AnonymousChatPage />
-      </SidebarProvider>
-    </AnonymousChatProvider>
+      </AnonymousChatProvider>
+    </SidebarProvider>
   );
 }
