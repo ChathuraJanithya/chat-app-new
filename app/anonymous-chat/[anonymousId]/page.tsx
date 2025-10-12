@@ -50,7 +50,7 @@ function AnonymousChatPage() {
         setCurrentChat(current);
       }
     }
-    if (!chats && anonymousId) {
+    if (!chats && anonymousId && !qParam) {
       router.push("/anonymous-chat");
     }
   }, []);
