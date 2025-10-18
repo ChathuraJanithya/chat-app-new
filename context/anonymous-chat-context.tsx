@@ -35,7 +35,7 @@ interface AnonymousChatContextProps {
   currentChat: ChatSession | null;
   setCurrentChat: (chat: ChatSession | null) => void;
   setAnonymousChat: (chats: ChatSession[]) => void;
-  createNewAnonymousChat: (chatId?: string) => ChatSession;
+  createNewAnonymousChat: (chatId?: string) => ChatSession | undefined;
   chatLimitExceeded: boolean;
   setChatLimitExceeded: React.Dispatch<React.SetStateAction<boolean>>;
   getCurrentMessageCount: () => number;
@@ -79,16 +79,9 @@ export function AnonymousChatProvider({
     return existingChats.length < MAXCHATS;
   };
 
-  // Auto-convert when user logs in
-  /*   useEffect(() => {
-    if (user && anonymousChat && anonymousChat.messages.length > 0) {
-      //    console.log("User logged in with existing anonymous chat, converting...");
-      convertToUserChat();
-    }
-  }, [user, anonymousChat]); */
-
   const updateLocalStorage = (chat: ChatSession | null) => {
     try {
+      console.log("FUNCTION CALLED UPDATE LOCAL STORAGE FOR THE CHAT", chat);
       const currentChatId = chat ? chat.id : currentChat?.id;
       if (!currentChatId) return;
 
@@ -159,6 +152,12 @@ export function AnonymousChatProvider({
     // Set the chat state first
     setAnonymousChat((prev) => [...prev, newChat]);
     setCurrentChat(newChat);
+    updateLocalStorage(newChat);
+
+    addMessageToAnonymousChat({
+      content: initialMessage || "",
+      role: "user",
+    });
     // setMessageCount(newChat.messages.length);
     // setHasReachedLimit(false);
 
@@ -178,6 +177,7 @@ export function AnonymousChatProvider({
   const addMessageToAnonymousChat = (
     message: Omit<ChatMessage, "id" | "timestamp">
   ) => {
+    console.log("ADD MESSAGE FUNCTION CALLED");
     if (!anonymousChat) {
       console.log("Anonymous chat not initialized yet.");
       return;
@@ -302,6 +302,20 @@ export function AnonymousChatProvider({
   const sendMessage = async (content: string) => {
     if (!content.trim() || !canSendMessage) return;
 
+    //is the fist message in the chat - set the chat title
+    const currentMsgCount = getCurrentMessageCount();
+    if (currentMsgCount === 0 && currentChat) {
+      const updatedTitle =
+        content.substring(0, 30) + (content.length > 30 ? "..." : "");
+      const updatedChat = { ...currentChat, title: updatedTitle };
+      setCurrentChat(updatedChat);
+      setAnonymousChat((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === updatedChat.id ? updatedChat : chat
+        )
+      );
+      updateLocalStorage(updatedChat);
+    }
     // Add user message immediately
     const userMessage: Omit<ChatMessage, "id" | "timestamp"> = {
       content,
