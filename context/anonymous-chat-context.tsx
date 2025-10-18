@@ -7,7 +7,7 @@ import { createContext, useContext, useState } from "react";
 import type { ChatMessage, ChatSession } from "@/types/chat";
 
 import { ChatService } from "@/lib/chat-service";
-import { generateChatId } from "@/data/chat-data";
+import { CONST_VARIABLES, generateChatId } from "@/data/chat-data";
 
 interface AnonymousChatContextProps {
   anonymousChat: ChatSession[];
@@ -38,6 +38,7 @@ interface AnonymousChatContextProps {
   createNewAnonymousChat: (chatId?: string) => ChatSession;
   chatLimitExceeded: boolean;
   setChatLimitExceeded: React.Dispatch<React.SetStateAction<boolean>>;
+  getCurrentMessageCount: () => number;
 }
 
 const AnonymousChatContext = createContext<
@@ -46,10 +47,9 @@ const AnonymousChatContext = createContext<
 
 const ANONYMOUS_CHAT_KEY = process.env.NEXT_PUBLIC_ANONYMOUS_CHAT_KEY;
 
-const maxChats = 5;
-const MAX_MESSAGE_COUNT = 10;
+const MAX_MESSAGE_COUNT = CONST_VARIABLES.MAX_MESSAGE_COUNT;
 
-const MAXCHATS = 5;
+const MAXCHATS = CONST_VARIABLES.MAXCHATS;
 
 export function AnonymousChatProvider({
   children,
@@ -166,6 +166,13 @@ export function AnonymousChatProvider({
     setTimeout(async () => {
       await generateBotResponseInternal(initialMessage || "", newChat, 1);
     }, 100);
+  };
+
+  const getCurrentMessageCount = () => {
+    const usersMessages = currentChat?.messages.filter(
+      (msg) => msg.role === "user"
+    );
+    return usersMessages ? usersMessages.length : 0;
   };
 
   const addMessageToAnonymousChat = (
@@ -334,6 +341,7 @@ export function AnonymousChatProvider({
         createNewAnonymousChat,
         chatLimitExceeded,
         setChatLimitExceeded,
+        getCurrentMessageCount,
       }}
     >
       {children}

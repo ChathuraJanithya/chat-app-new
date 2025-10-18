@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAnonymousChat } from "@/context/anonymous-chat-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { useParams } from "next/navigation";
+import { CONST_VARIABLES } from "@/data/chat-data";
 
 import { ChatMessageItem } from "@/components/chat-message";
 import { ScrollToBottom } from "@/components/scroll-to-bottom";
@@ -19,7 +19,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 export function AnonymousChatCanvas() {
   const isMobile = useIsMobile();
-  const { anonymousId } = useParams();
 
   const [inputValue, setInputValue] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -28,11 +27,9 @@ export function AnonymousChatCanvas() {
   const {
     isTyping,
     sendMessage,
-    maxMessages,
     currentChat,
-    messageCount,
     canSendMessage,
-    hasReachedLimit,
+    getCurrentMessageCount,
   } = useAnonymousChat();
 
   // Scroll to bottom when messages change or when typing starts/stops
@@ -62,6 +59,10 @@ export function AnonymousChatCanvas() {
       setInputValue("");
     }
   };
+
+  const current = getCurrentMessageCount();
+  const max = CONST_VARIABLES.MAX_MESSAGE_COUNT;
+  const isLimitReached = current >= max;
 
   return (
     <div className="flex flex-1 flex-col  hide-scrollbar h-[calc(100vh-3.5rem)] relative">
@@ -118,7 +119,7 @@ export function AnonymousChatCanvas() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 rows={1}
-                disabled={isTyping || !canSendMessage}
+                disabled={isTyping || isLimitReached}
               />
               <div className="absolute bottom-1 right-1 flex items-center gap-2">
                 <Button
@@ -147,20 +148,6 @@ export function AnonymousChatCanvas() {
                 </Button>
               </div>
             </div>
-            {hasReachedLimit && (
-              <div className="text-center mt-2">
-                <p className="text-sm text-muted-foreground">
-                  Message limit reached ({messageCount}/{maxMessages})
-                  <Button
-                    variant="link"
-                    className="p-0 h-auto text-sm ml-1"
-                    asChild
-                  >
-                    <a href="/login">Log in to continue</a>
-                  </Button>
-                </p>
-              </div>
-            )}
           </div>
         </div>
       )}

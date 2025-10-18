@@ -100,3 +100,8 @@ export const Chatsuggestions: ChatSugestion[] = [
     description: "Transport options: train, bus, tuk-tuk & more",
   },
 ];
+
+export const CONST_VARIABLES = {
+  MAX_MESSAGE_COUNT: 10,
+  MAXCHATS: 5,
+};

@@ -107,7 +107,7 @@ function AnonymousChatPage() {
     >
       <AnonymousChatSidebar />
       <div className="flex flex-1 flex-col">
-        <AnonymousChatHeader />
+        <AnonymousChatHeader showMessageLimit />
         <AnonymousChatCanvas />
       </div>
     </div>
