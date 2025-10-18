@@ -174,10 +174,21 @@ export function AnonymousChatProvider({
     return usersMessages ? usersMessages.length : 0;
   };
 
+  const updateTitle = (newTitle: string): string => {
+    const trimmed = (newTitle || "").trim();
+    const title =
+      trimmed.length === 0
+        ? "New Chat"
+        : trimmed.length > 30
+        ? trimmed.substring(0, 30) + "..."
+        : trimmed;
+
+    return title;
+  };
+
   const addMessageToAnonymousChat = (
     message: Omit<ChatMessage, "id" | "timestamp">
   ) => {
-    console.log("ADD MESSAGE FUNCTION CALLED");
     if (!anonymousChat) {
       console.log("Anonymous chat not initialized yet.");
       return;
@@ -190,17 +201,29 @@ export function AnonymousChatProvider({
       timestamp: new Date(),
     };
 
+    //is the fist message in the chat - set the chat title
+    const currentMsgCount = getCurrentMessageCount();
+    const isFirstMessage = currentMsgCount === 0;
+
     let updatedChat: ChatSession | null = null;
     setCurrentChat((prev) => {
       if (!prev) return null;
       updatedChat = {
         ...prev,
+        title: isFirstMessage ? updateTitle(message.content) : prev.title,
         messages: [...prev.messages, newMessage],
       };
       return updatedChat;
     });
 
     if (updatedChat) {
+      //update Anonymous chat list
+      setAnonymousChat((prevChats) => {
+        const otherChats = prevChats.filter(
+          (chat) => chat.id !== updatedChat!.id
+        );
+        return [...otherChats, updatedChat as ChatSession];
+      });
       updateLocalStorage(updatedChat);
     }
   };
@@ -302,20 +325,6 @@ export function AnonymousChatProvider({
   const sendMessage = async (content: string) => {
     if (!content.trim() || !canSendMessage) return;
 
-    //is the fist message in the chat - set the chat title
-    const currentMsgCount = getCurrentMessageCount();
-    if (currentMsgCount === 0 && currentChat) {
-      const updatedTitle =
-        content.substring(0, 30) + (content.length > 30 ? "..." : "");
-      const updatedChat = { ...currentChat, title: updatedTitle };
-      setCurrentChat(updatedChat);
-      setAnonymousChat((prevChats) =>
-        prevChats.map((chat) =>
-          chat.id === updatedChat.id ? updatedChat : chat
-        )
-      );
-      updateLocalStorage(updatedChat);
-    }
     // Add user message immediately
     const userMessage: Omit<ChatMessage, "id" | "timestamp"> = {
       content,

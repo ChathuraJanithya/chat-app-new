@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -22,7 +23,8 @@ import {
 
 import { Plus, AlertCircle, MessageSquare } from "lucide-react";
 import { useAnonymousChat } from "@/context/anonymous-chat-context";
-import { Router } from "next/router";
+
+import { CONST_VARIABLES } from "@/data/chat-data";
 
 export function AnonymousChatSidebar() {
   const {
@@ -58,13 +60,25 @@ export function AnonymousChatSidebar() {
     }
   };
 
+  const chatLimit = CONST_VARIABLES.MAXCHATS;
+  const isLimitedReached = anonymousChat.length >= chatLimit;
+
+  //const isLimited = ;
+
   return (
     <Sidebar>
       <SidebarHeader className="p-2">
-        {error && (
+        {isOpen && isLimitedReached && (
           <Alert variant="destructive" className="mb-2">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-xs">{error}</AlertDescription>
+            <AlertDescription className="text-xs">
+              Chat limit reached. Please
+              <Link href="/login" className="underline">
+                {" "}
+                Login{" "}
+              </Link>
+              to create more chats.
+            </AlertDescription>
           </Alert>
         )}
         {isOpen && (
@@ -72,7 +86,7 @@ export function AnonymousChatSidebar() {
             variant="outline"
             className="w-full justify-start gap-2 shadow-sm bg-transparent"
             onClick={handleNewChat}
-            disabled={chatLimitExceeded}
+            disabled={isLimitedReached || isCreating}
           >
             <Plus className="h-4 w-4" />
             <span>{isCreating ? "Creating..." : "New chat"}</span>
