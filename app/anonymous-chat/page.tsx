@@ -16,6 +16,17 @@ import { AnonymousChatHeader } from "@/components/anonymous-chat-header";
 import { AnonymousChatSidebar } from "@/components/anonymous-chat-sidebar";
 import { EmptyAnonymousChatCanvas } from "@/components/anonymous-empty-chat-canvas";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { generateChatId } from "@/data/chat-data";
 
 function AnonymousChatPage() {
@@ -28,23 +39,22 @@ function AnonymousChatPage() {
 
   const {
     isUserCanCreateNewChat,
-    setAnonymousChat,
     loadChatsFromLocalStorage,
+    limitAlertDialog,
+    setLimitAlertDialog,
+    setAnonymousChat,
   } = useAnonymousChat();
 
   useEffect(() => {
     if (!user) {
       const existingChats = loadChatsFromLocalStorage();
       if (existingChats) {
-        // setAnonymousChat(existingChats);
+        setAnonymousChat(existingChats);
       }
       const qParam = searchParams.get("q");
       const validated = isUserCanCreateNewChat(existingChats || []);
       if (!validated) {
-        alert(
-          "You have reached the maximum number of anonymous chats allowed. Please log in to continue."
-        );
-        router.replace(`/login`);
+        setLimitAlertDialog(true);
         return;
       }
       if (qParam && validated) {
@@ -79,6 +89,24 @@ function AnonymousChatPage() {
         <AnonymousChatHeader />
         <EmptyAnonymousChatCanvas />
       </div>
+
+      <AlertDialog open={limitAlertDialog} onOpenChange={setLimitAlertDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Alert</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have reached the maximum number of anonymous chats allowed.
+              Please login to continue using the anonymous chat feature.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => router.push("/login")}>
+              Login
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

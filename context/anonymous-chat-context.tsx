@@ -39,6 +39,8 @@ interface AnonymousChatContextProps {
   chatLimitExceeded: boolean;
   setChatLimitExceeded: React.Dispatch<React.SetStateAction<boolean>>;
   getCurrentMessageCount: () => number;
+  limitAlertDialog: boolean;
+  setLimitAlertDialog: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AnonymousChatContext = createContext<
@@ -65,6 +67,8 @@ export function AnonymousChatProvider({
   const chatService = ChatService.getInstance();
   const [currentChat, setCurrentChat] = useState<ChatSession | null>(null);
   const [chatLimitExceeded, setChatLimitExceeded] = useState(false);
+
+  const [limitAlertDialog, setLimitAlertDialog] = useState(false);
 
   const canSendMessage = anonymousChat.length < MAX_MESSAGE_COUNT;
 
@@ -365,6 +369,8 @@ export function AnonymousChatProvider({
         chatLimitExceeded,
         setChatLimitExceeded,
         getCurrentMessageCount,
+        limitAlertDialog,
+        setLimitAlertDialog,
       }}
     >
       {children}
