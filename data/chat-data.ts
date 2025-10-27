@@ -1,4 +1,4 @@
-import type { ChatSession } from "@/types/chat"
+import type { ChatSession, ChatSugestion } from "@/types/chat";
 
 export const mockChats: ChatSession[] = [
   {
@@ -28,7 +28,8 @@ export const mockChats: ChatSession[] = [
     messages: [
       {
         id: "msg-2-1",
-        content: "I have an important presentation tomorrow. Can you wish me luck?",
+        content:
+          "I have an important presentation tomorrow. Can you wish me luck?",
         role: "user",
         timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
       },
@@ -61,14 +62,46 @@ export const mockChats: ChatSession[] = [
       },
     ],
   },
-]
+];
 
 // Function to generate a unique chat ID
 export function generateChatId(): string {
-  return `chat-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+  return `chat-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
 // Function to get a chat by ID
 export function getChatById(id: string): ChatSession | undefined {
-  return mockChats.find((chat) => chat.id === id)
+  return mockChats.find((chat) => chat.id === id);
 }
+
+export const Chatsuggestions: ChatSugestion[] = [
+  {
+    title: "Best places to visit in Sri Lanka?",
+    description: "Explore top tourist destinations island-wide",
+  },
+  {
+    title: "Tell me about Sri Lankan food",
+    description: "Learn about traditional dishes and flavors",
+  },
+  {
+    title: "How is the weather in Sri Lanka now?",
+    description: "Get current climate info by region",
+  },
+  {
+    title: "Is Sri Lanka safe for tourists?",
+    description: "Understand safety tips and travel advice",
+  },
+  {
+    title: "What are must-visit historical sites?",
+    description: "Discover ancient cities and cultural heritage",
+  },
+  {
+    title: "How do I get around Sri Lanka?",
+    description: "Transport options: train, bus, tuk-tuk & more",
+  },
+];
+
+export const CONST_VARIABLES = {
+  MAX_MESSAGE_COUNT: 10,
+  MAXCHATS: 5,
+};
