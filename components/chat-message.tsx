@@ -6,11 +6,7 @@ import { useChat } from "@/context/chat-context";
 import { ThumbsUp, ThumbsDown, X } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-import {
-  AnimatedStreamingMessage,
-  AnimatedStreamingMessageVariant,
-} from "./animated-streaming-message";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -91,6 +87,7 @@ export function ChatMessageItem({ message, isLastMessage }: ChatMessageProps) {
       reasons: selectedReasons,
       additionalFeedback,
     });
+    toast.success("Thank you for your feedback!");
 
     setFeedbackOpen(false);
   };
@@ -141,6 +138,7 @@ export function ChatMessageItem({ message, isLastMessage }: ChatMessageProps) {
 
       <Button
         onClick={handleSubmitFeedback}
+        onKeyDown={handleSubmitFeedback}
         className="w-full"
         disabled={selectedReasons.length === 0 && !additionalFeedback.trim()}
       >
