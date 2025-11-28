@@ -3,8 +3,11 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 
-import { useAnonymousChat } from "@/context/anonymous-chat-context";
+import Link from "next/link";
+import Image from "next/image";
+
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAnonymousChat } from "@/context/anonymous-chat-context";
 
 import { CONST_VARIABLES } from "@/data/chat-data";
 
@@ -106,6 +109,26 @@ export function AnonymousChatCanvas() {
       ) : (
         <div className="p-4 bg-background/80 backdrop-blur-sm">
           <div className="mx-auto max-w-3xl">
+            <div className=" flex mx-auto flex-col pb-3.5 gap-1">
+              <Link
+                className=" flex items-center justify-center text-center gap-2 "
+                href="https://visitsrilanka.ai/"
+                target="_blank"
+              >
+                <Image
+                  src="/visitSriLanka.png"
+                  alt="Visit Sri Lanka"
+                  width={18}
+                  height={18}
+                  className=" rounded-full"
+                />
+                <span className=" text-xs underline">Visit Sri Lanka.ai</span>
+              </Link>
+              <span className=" text-xs text-center text-muted-foreground">
+                Explore the beauty of Sri Lanka with our AI-powered travel
+                guide.
+              </span>
+            </div>
             <div className="relative rounded-lg shadow-sm border dark:border-gray-700 transition-colors duration-200">
               <Textarea
                 ref={desktopInputRef}

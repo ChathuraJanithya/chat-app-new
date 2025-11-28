@@ -39,7 +39,7 @@ export function AnonymousChatHeader({
             width={32}
             height={32}
           />
-          <span>Visit Sri Lanka</span>
+          <span className="hidden md:block">Visit Sri Lanka</span>
         </Link>
         {/* limit message length */}
         {showMessageLimit && (

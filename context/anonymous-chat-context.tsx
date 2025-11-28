@@ -85,7 +85,6 @@ export function AnonymousChatProvider({
 
   const updateLocalStorage = (chat: ChatSession | null) => {
     try {
-      console.log("FUNCTION CALLED UPDATE LOCAL STORAGE FOR THE CHAT", chat);
       const currentChatId = chat ? chat.id : currentChat?.id;
       if (!currentChatId) return;
 
@@ -246,18 +245,27 @@ export function AnonymousChatProvider({
 
     setIsTyping(true);
 
+    // ✅ Add placeholder assistant message immediately
+    const placeholderId = `temp-assistant-${Date.now()}`;
+    const placeholderMessage: ChatMessage = {
+      id: placeholderId,
+      content: "",
+      role: "assistant",
+      timestamp: new Date(),
+    };
+
+    // Add placeholder to current chat immediately
+    setCurrentChat((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        messages: [...prev.messages, placeholderMessage],
+      };
+    });
+
     try {
       let botResponse = "";
       let firstChunk = true;
-
-      // ✅ Add placeholder assistant message
-      const placeholderId = `temp-assistant-${Date.now()}`;
-      const placeholderMessage: ChatMessage = {
-        id: placeholderId,
-        content: "",
-        role: "assistant",
-        timestamp: new Date(),
-      };
 
       // ✅ Stream response chunks
       await chatService.sendMessage(
@@ -266,13 +274,6 @@ export function AnonymousChatProvider({
           if (firstChunk) {
             setIsTyping(false); // Hide typing indicator after first chunk
             firstChunk = false;
-            setCurrentChat((prev) => {
-              if (!prev) return null;
-              return {
-                ...prev,
-                messages: [...prev.messages, placeholderMessage],
-              };
-            });
           }
 
           botResponse += chunk;
@@ -293,17 +294,22 @@ export function AnonymousChatProvider({
       console.error("Error generating anonymous bot response:", error);
 
       const errorMessage =
-        "I'm sorry, I'm having trouble connecting right now. This is an anonymous chat session with limited messages. Please log in for unlimited chatting.";
+        "I'm sorry, I'm having trouble connecting right now. Please try again.";
 
       // Replace placeholder with error message
       setCurrentChat((prev) => {
         if (!prev) return null;
         const updatedMessages = prev.messages.map((msg) =>
-          msg.role === "assistant" && msg.content === ""
-            ? { ...msg, content: errorMessage }
+          msg.id === placeholderId
+            ? {
+                ...msg,
+                content: errorMessage,
+              }
             : msg
         );
-        return { ...prev, messages: updatedMessages };
+        const chat = { ...prev, messages: updatedMessages };
+        updatedChat = chat;
+        return chat;
       });
 
       const newCount = currentMessageCount + 1;
@@ -312,11 +318,14 @@ export function AnonymousChatProvider({
       if (updatedChat) {
         updateLocalStorage(updatedChat);
       }
-      setIsTyping(false);
+      setTimeout(() => {
+        setIsTyping(false);
+      }, 100);
     }
   };
 
   const generateBotResponse = async (userMessage: string) => {
+    console.log();
     //if (!anonymousChat) return;
     await generateBotResponseInternal(
       userMessage,
