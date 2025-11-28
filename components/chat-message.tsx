@@ -8,13 +8,7 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import {
   Drawer,
   DrawerClose,
@@ -97,8 +91,6 @@ export function ChatMessageItem({ message, isLastMessage }: ChatMessageProps) {
     setSelectedReasons([]);
     setAdditionalFeedback("");
   };
-
-  console.log("Message rendering:", message);
 
   const FeedbackContent = () => (
     <div className="space-y-4">
